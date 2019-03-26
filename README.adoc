@@ -1,7 +1,7 @@
 = Building a Vert.x Native Image
 :author: Paulo Lopes <pmlopes@gmail.com>
 :page-permalink: /
-:page-github: vertx-howtos/graalvm-native-image-howto
+:page-github: vertx-howtos/graal-native-image-howto
 
 This howto shows all the current required steps and workarounds to build a vert.x native image with https://www.graalvm.org[graalvm].
 
