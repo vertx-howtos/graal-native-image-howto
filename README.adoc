@@ -1,0 +1,421 @@
+= Building a Vert.x Native Image
+:author: Paulo Lopes <pmlopes@gmail.com>
+:page-permalink: /
+:page-github: vertx-howtos/graalvm-native-image-howto
+
+This howto shows all the current required steps and workarounds to build a vert.x native image with https://www.graalvm.org[graalvm].
+
+== What you will build
+
+- You will write a multi-verticle application (client + server).
+- The code will cover security (SSL).
+- The code will be compiled to native with the help of http://www.graalvm.org/[GraalVM].
+
+== What you need
+
+- A text editor or IDE
+- GraalVM (>= 1.0.0-rc14)
+- Maven
+
+== What is a native-image and why is Vert.x a good match?
+
+A native-image is a optimized translation of a java application to OS/CPU specific native code.
+This new application will have different characteristics from a traditional JVM application, the
+most notable ones are:
+
+* faster startup times
+* (usually) smaller heap sizes
+
+Native images are therefore very well suited for *CLI* or *Serverless* but nothing forbids its use
+also for server applications.
+
+Native image compilation has several restrictions (by design) of which most do not apply to Vert.x
+core code. This makes vert.x a very good candidate to write native images. There are however, a couple
+of known limitations that can be easily worked around to build a native image.
+
+This howto will cover these limitations and explain how to adapt a simple vert.x application to become
+native.
+
+
+== Create a project
+
+Start by creating a new project that follows the following structure:
+
+----
+step-1
+├── pom.xml
+└── src
+    └── main
+        └── java
+            └── vertx
+                └── HTTPVerticle.java
+----
+
+After that let's walk over the important parts of the project. Here is the content of the `pom.xml` file that you should be using:
+
+[source,xml,role="collapsed"]
+----
+include::steps/step-1/pom.xml[]
+----
+
+This is a minimal `Hello World` project. which you can confirm by reading what the code does:
+
+[source,java]
+----
+include::steps/step-1/src/main/java/vertx/HTTPVerticle.java[]
+----
+
+Until this moment there is nothing new. It is a plain vert.x java project.
+
+
+== Add the GraalVM Native Image Maven Plugin
+
+In order to build a native image we should add the `native-image-maven-plugin`
+
+[source,xml,role="collapsed"]
+----
+<plugin>
+  <groupId>com.oracle.substratevm</groupId>
+  <artifactId>native-image-maven-plugin</artifactId>
+  <version>${graal.version}</version>   <!--1-->
+  <executions>
+    <execution>
+      <goals>
+        <goal>native-image</goal>
+      </goals>
+      <phase>package</phase>
+    </execution>
+  </executions>
+  <configuration>
+    <imageName>${project.name}</imageName>    <!--2-->
+    <mainClass>${vertx.verticle}</mainClass>  <!--3-->
+    <buildArgs>-H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath</buildArgs> <!--4-->
+  </configuration>
+</plugin>
+----
+<1> We include the plugin which should match the installed graalvm version.
+<2> Specifies the final name of the image (the executable name)
+<3> The main start class
+<4> The arguments to pass to the compiler (in this case we allow incomplete class since there are optional jars in our code we don't want to include, and report errors at runtime so we can allow building applications that cannot be fully analyzed by graal at the current moment).
+
+== Building the image
+
+Building the image is now as simple as:
+
+----
+mvn package
+----
+
+However this will fail as there is no `public static void main` method in the declared main class. We fix this by adding it to `HTTPVerticle`:
+
+[source,java]
+----
+  public static void main(String[] args) {
+    Vertx.vertx().deployVerticle(new HTTPVerticle());
+  }
+----
+
+A new attempt to build will show again that this isn't enough. Until the https://github.com/netty/netty/pull/8963[this netty pull request] is merged
+You will have to add the following metadata to your projects to get it build:
+
+[source,java]
+----
+include::steps/step-4/src/main/java/graal/SVMSubstitutions.java[]
+----
+
+This code will help the compiler to know that netty is using unsafe memory references and should not hardcode the values in the image heap as they are
+runtime dependent. They must be recomputed to the new heap location on each execution.
+
+[source,properties]
+----
+include::steps/step-4/src/main/resources/META-INF/native-image/com.example/myapp/native-image.properties[]
+----
+
+This configuration will be appended to the plugin configuration and is informing that this set of classes have runtime dependency on heap memory (cached) that cannot be computed during compilation, so the initialization must be delayed or re-run at runtime.
+
+Hopefully once the pull request mentioned above is merged this step is not required.
+
+You should now have the following:
+
+----
+step-4
+├── pom.xml
+└── src
+    └── main
+        ├── java
+        │   ├── graal
+        │   │   └── SVMSubstitutions.java
+        │   └── vertx
+        │       └── HTTPVerticle.java
+        └── resources
+            └── META-INF
+                └── native-image
+                    └── com.example
+                        └── myapp
+                            └── native-image.properties
+----
+
+Building show now output:
+
+----
+$ mvn package
+[INFO] Scanning for projects...
+...
+[hello_native:12244]      compile:  27,868.04 ms
+[hello_native:12244]        image:   2,177.81 ms
+[hello_native:12244]        write:     334.70 ms
+[hello_native:12244]      [total]:  63,193.72 ms
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+----
+
+And you can test it:
+
+----
+$ ./target/hello_native
+Server listening on http://localhost:8080/
+----
+
+Congratulations, you just build your first native image.
+
+
+== SSL
+
+Adding support to SSL is not difficult but requires some updates. The reason is that security libraries will increase your final binary size considerably so all security features are disabled behind flags. There are also other caveats such as java keystores are allowed **BUT** must be in `PKCS12` which is the new default format since Java9 but not on Java8 (which graalvm is based on).
+
+You will now add an HTTPS vertcle server to your project, create the class `HTTPSVerticle` in the `vertx` package next to the existing one:
+
+[source,java]
+----
+include::steps/step-5/src/main/java/vertx/HTTPSVerticle.java[]
+----
+<1> Enable HTTPS for this server.
+<2> Specify where to load the certificates from.
+<3> What is the keystore password (you shouldn't do this, you should get the password from a configuration, but for simplicity purposes it is hardcoded).
+
+You need a certificate so this are the required steps:
+
+----
+# Generate the self signed test certificate
+$ keytool
+  -genkey \
+  -alias vertx \
+  -keypass localhost \
+  -keystore certificates.keystore \
+  -storepass localhost \
+  -keyalg RSA
+
+# Convert to PCKS12
+$ keytool \
+  -importkeystore \
+  -srckeystore certificates.keystore \
+  -destkeystore certificates.keystore \
+  -deststoretype pkcs12
+----
+
+If you build the image this will compile, but won't work at runtime. Two things are needed:
+
+. Enable the security features to be added to the native image
+. A GraalVM/OpenJDK specific `dll` must be in your libs or in the current working directory.
+
+To enable the security feature the `graal plugin` must be configured as:
+
+[source,xml]
+----
+<configuration>
+  <imageName>${project.name}</imageName>
+  <mainClass>${vertx.verticle}</mainClass>
+  <buildArgs>-H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath --enable-all-security-services</buildArgs>
+</configuration>
+----
+
+And you should copy `libsunec.so` to your local directory.
+
+----
+step-6
+├── certificates.keystore
+├── libsunec.so
+├── pom.xml
+└── src
+    └── main
+        ├── java
+        │   ├── graal
+        │   │   └── SVMSubstitutions.java
+        │   └── vertx
+        │       ├── HTTPSVerticle.java
+        │       └── HTTPVerticle.java
+        └── resources
+            └── META-INF
+                └── native-image
+                    └── com.example
+                        └── myapp
+                            └── native-image.properties
+----
+
+Again build and run:
+
+----
+$ mvn package
+[INFO] Scanning for projects...
+...
+[hello_native:12244]      compile:  25,963.39 ms
+[hello_native:12244]        image:   2,391.10 ms
+[hello_native:12244]        write:     339.03 ms
+[hello_native:12244]      [total]:  60,812.12 ms
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+
+$ ./target/hello_native
+Server listening on https://localhost:8443/
+----
+
+You have now your first HTTPS server running.
+
+== Native Clients
+
+Now that we covered basic images and security we can touch clients. For this example we will consume a simple HTTPS API.
+
+[source,java]
+----
+include::steps/step-7/src/main/java/vertx/APIClientVerticle.java[]
+----
+
+This client will make a HTTPS request and print the output on the console. The application will build without further changes but will fail at runtime:
+
+----
+$ ./target/hello_native
+io.netty.resolver.dns.DnsResolveContext$SearchDomainUnknownHostException: Search domain query failed. Original hostname: 'icanhazdadjoke.com' failed to resolve 'icanhazdadjoke.com' after 3 queries
+        at io.netty.resolver.dns.DnsResolveContext.finishResolve(DnsResolveContext.java:845)
+        at io.netty.resolver.dns.DnsResolveContext.tryToFinishResolve(DnsResolveContext.java:806)
+        at io.netty.resolver.dns.DnsResolveContext.query(DnsResolveContext.java:333)
+        at io.netty.resolver.dns.DnsResolveContext.query(DnsResolveContext.java:322)
+        at io.netty.resolver.dns.DnsResolveContext.access$500(DnsResolveContext.java:62)
+...
+        at java.lang.Thread.run(Thread.java:748)
+        at com.oracle.svm.core.thread.JavaThreads.threadStartRoutine(JavaThreads.java:473)
+        at com.oracle.svm.core.posix.thread.PosixJavaThreads.pthreadStartRoutine(PosixJavaThreads.java:193)
+Caused by: io.netty.resolver.dns.DnsNameResolverException: [/8.8.8.8:53] failed to send a query (no stack trace available)
+Caused by: java.nio.channels.ClosedChannelException
+----
+
+You could try to identify what is causing this or simply use the blocking DNS resolver with vert.x
+
+----
+$ ./target/hello_native -Dvertx.disableDnsResolver=true
+Got HTTP response with status 200 with data Two peanuts were walking down the street. One was a salted.
+----
+
+As you can imagine it is not interesting have this flags being added all the time you run your application. For this we can
+use the substitutions to patch the vert.x code to always use the desired mode:
+
+[source,java]
+----
+/**
+ * This substitution forces the usage of the blocking DNS resolver
+ */
+@TargetClass(className = "io.vertx.core.spi.resolver.ResolverProvider")
+final class TargetResolverProvider {
+
+    @Substitute
+    public static ResolverProvider factory(Vertx vertx, AddressResolverOptions options) {
+        return new DefaultResolverProvider();
+    }
+}
+----
+
+If this class is added to the `SVMSubstitutions.java` during compilation the class `io.vertx.core.spi.resolver.ResolverProvider` will be patched to have the method `factory` always to return the blocking DNS resolver. So in this case when you build a new image you can run it as:
+
+----
+$ ./target/hello_native
+Got HTTP response with status 200 with data Where do hamburgers go to dance? The meat-ball.
+----
+
+== Multiple Verticles
+
+We have a simple project with 3 verticles, it would be interesting to use the vert.x launcher to allow using the 3 from the same image as we do from a single jar.
+
+Sadly vert.x lancher relies on reflection which is requires configuration to get working on native.
+
+To configure reflection a json file is required and it must be configured on the `native-image.properties`:
+
+[source,properties]
+----
+Args =  --enable-all-security-services \
+        --rerun-class-initialization-at-runtime=io.netty.handler.codec.http2.Http2CodecUtil \
+        --delay-class-initialization-to-runtime=io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http2.DefaultHttp2FrameWriter,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder \
+        -H:ReflectionConfigurationFiles=classes/${.}/reflection.json
+----
+
+This is telling to the compiler to load a file called `reflection.json` which is relative to the current configuration. This file can be generated manually or with the help of an agent. The agent is currently unstable so this is the manually generated one:
+
+[source,json]
+----
+include::steps/step-9/src/main/resources/META-INF/native-image/com.example/myapp/reflection.json[]
+----
+
+Since the commands are loaded by reflection you need to declare the `RunCommand`, `VertxIsolatedDeployer`, `Long` and `Integer` classes to be accessed by reflection and their default constructors. Long and integer are used by the launcher to parse arguments if you're wondering why.
+
+Then we can remove all `public static void main` methods from our verticles and list the verticles in the reflection file too.
+
+If you build the image, everything will work **except** the default main verticle will not start automatically. The reason is that the main verticle is defined in the `MANIFEST.MF` file. So this means we need to add resources to the image:
+
+[source,properties]
+----
+Args =  --enable-all-security-services \
+        --rerun-class-initialization-at-runtime=io.netty.handler.codec.http2.Http2CodecUtil \
+        --delay-class-initialization-to-runtime=io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http2.DefaultHttp2FrameWriter,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder \
+        -H:IncludeResources=META-INF/.* \
+        -H:ReflectionConfigurationFiles=classes/${.}/reflection.json
+----
+
+So the include resources configuration now tells the compiler to include all the `META-INF` files in the image.
+
+----
+$ mvn package
+[INFO] Scanning for projects...
+...
+[hello_native:12244]      compile:  15,823.76 ms
+[hello_native:12244]        image:   2,144.95 ms
+[hello_native:12244]        write:     306.25 ms
+[hello_native:12244]      [total]:  48,724.03 ms
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+
+$ ./target/hello_native
+Got HTTP response with status 200 with data Sometimes I tuck my knees into my chest and lean forward.  Thatâs just how I roll.
+^C
+
+$ ./target/hello_native run vertx.HTTPVerticle
+Server listening on http://localhost:8080/
+^C
+
+$ ./target/hello_native run vertx.HTTPSVerticle
+Server listening on https://localhost:8443/
+^C
+----
+
+You have now all the verticles in the same image. Remember that you can do now all the things you would with the launcher, for example scale the number of verticles for the HTTP server:
+
+----
+$ ./target/hello_native run vertx.HTTPVerticle -instances 4
+Server listening on http://localhost:8080/
+Server listening on http://localhost:8080/
+Server listening on http://localhost:8080/
+Server listening on http://localhost:8080/
+^C
+----
+
+And this concludes the native image howto.
+
+== Summary
+
+- We wrote a HTTP server verticle.
+- We added the required metadata to build a image.
+- We wrote a HTTPS server verticle.
+- We added the required security dll and configuration to build a image.
+- We wrote a HTTPS client verticle.
+- We patched the current vert.x library to resolve the DNS issue.
+- We configured reflection and resources to have multiple verticles in a single image.
