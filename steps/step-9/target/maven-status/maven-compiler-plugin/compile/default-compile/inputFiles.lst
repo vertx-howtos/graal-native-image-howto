@@ -1,0 +1,4 @@
+/home/travis/build/vertx-howtos/graal-native-image-howto/steps/step-9/src/main/java/graal/SVMSubstitutions.java
+/home/travis/build/vertx-howtos/graal-native-image-howto/steps/step-9/src/main/java/vertx/HTTPVerticle.java
+/home/travis/build/vertx-howtos/graal-native-image-howto/steps/step-9/src/main/java/vertx/HTTPSVerticle.java
+/home/travis/build/vertx-howtos/graal-native-image-howto/steps/step-9/src/main/java/vertx/APIClientVerticle.java
