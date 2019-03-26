@@ -3,7 +3,7 @@ jdk: openjdk8
 
 install: true
 
-# script: mvn -f aws-lambda-vertx-runtime/pom.xml clean test
+script: mvn -f steps/step-9/pom.xml clean compile
 
 before_deploy: ./.run.jekyll.sh
 
