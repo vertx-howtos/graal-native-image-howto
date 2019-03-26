@@ -3,11 +3,10 @@ source "https://rubygems.org"
 gem "jekyll", "~> 3.8.5"
 
 group :jekyll_plugins do
+  gem 'asciidoctor'
   gem 'jekyll-asciidoc'
-  gem 'asciidoctor-rouge'
 end
 
-gem 'rouge'
 gem 'vertx-howtos-jekyll-theme'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
