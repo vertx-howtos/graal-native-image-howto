@@ -84,7 +84,7 @@
         <configuration>
           <imageName>${project.name}</imageName>
           <mainClass>${vertx.verticle}</mainClass>
-          <buildArgs>-H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath --enable-all-security-services</buildArgs>
+          <buildArgs>-H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath --enable-all-security-services -Dio.netty.noUnsafe=true</buildArgs>
         </configuration>
       </plugin>
     </plugins>

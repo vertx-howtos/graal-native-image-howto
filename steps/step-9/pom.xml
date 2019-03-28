@@ -84,7 +84,7 @@
         <configuration>
           <imageName>${project.name}</imageName>
           <mainClass>io.vertx.core.Launcher</mainClass>
-          <buildArgs>-H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath</buildArgs>
+          <buildArgs>-H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath -Dio.netty.noUnsafe=true</buildArgs>
         </configuration>
       </plugin>
     </plugins>
