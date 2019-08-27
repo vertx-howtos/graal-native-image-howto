@@ -14,7 +14,7 @@ This howto shows all the current required steps and workarounds to build a vert.
 == What you need
 
 - A text editor or IDE
-- GraalVM (>= 1.0.0-rc14)
+- GraalVM (>= 19.2.0)
 - Maven
 
 == What is a native-image and why is Vert.x a good match?
@@ -115,44 +115,16 @@ However this will fail as there is no `public static void main` method in the de
   }
 ----
 
-A new attempt to build will show again that this isn't enough. Until the https://github.com/netty/netty/pull/8963[this netty pull request] is merged
-You will have to add the following metadata to your projects to get it build:
-
-[source,java]
-----
-include::steps/step-4/src/main/java/graal/SVMSubstitutions.java[]
-----
-
-This code will help the compiler to know that netty is using unsafe memory references and should not hardcode the values in the image heap as they are
-runtime dependent. They must be recomputed to the new heap location on each execution.
-
-[source,properties]
-----
-include::steps/step-4/src/main/resources/META-INF/native-image/com.example/myapp/native-image.properties[]
-----
-
-This configuration will be appended to the plugin configuration and is informing that this set of classes have runtime dependency on heap memory (cached) that cannot be computed during compilation, so the initialization must be delayed or re-run at runtime.
-
-Hopefully once the pull request mentioned above is merged this step is not required.
-
 You should now have the following:
 
 ----
-step-4
+step-3
 ├── pom.xml
 └── src
     └── main
         ├── java
-        │   ├── graal
-        │   │   └── SVMSubstitutions.java
         │   └── vertx
         │       └── HTTPVerticle.java
-        └── resources
-            └── META-INF
-                └── native-image
-                    └── com.example
-                        └── myapp
-                            └── native-image.properties
 ----
 
 Building show now output:
@@ -240,17 +212,9 @@ step-6
 └── src
     └── main
         ├── java
-        │   ├── graal
-        │   │   └── SVMSubstitutions.java
         │   └── vertx
         │       ├── HTTPSVerticle.java
         │       └── HTTPVerticle.java
-        └── resources
-            └── META-INF
-                └── native-image
-                    └── com.example
-                        └── myapp
-                            └── native-image.properties
 ----
 
 Again build and run:
@@ -282,54 +246,26 @@ Now that we covered basic images and security we can touch clients. For this exa
 include::steps/step-7/src/main/java/vertx/APIClientVerticle.java[]
 ----
 
-This client will make a HTTPS request and print the output on the console. The application will build without further changes but will fail at runtime:
+This client will make a HTTPS request and print the output on the console. The application will fail to build:
 
 ----
-$ ./target/hello_native
-io.netty.resolver.dns.DnsResolveContext$SearchDomainUnknownHostException: Search domain query failed. Original hostname: 'icanhazdadjoke.com' failed to resolve 'icanhazdadjoke.com' after 3 queries
-        at io.netty.resolver.dns.DnsResolveContext.finishResolve(DnsResolveContext.java:845)
-        at io.netty.resolver.dns.DnsResolveContext.tryToFinishResolve(DnsResolveContext.java:806)
-        at io.netty.resolver.dns.DnsResolveContext.query(DnsResolveContext.java:333)
-        at io.netty.resolver.dns.DnsResolveContext.query(DnsResolveContext.java:322)
-        at io.netty.resolver.dns.DnsResolveContext.access$500(DnsResolveContext.java:62)
-...
-        at java.lang.Thread.run(Thread.java:748)
-        at com.oracle.svm.core.thread.JavaThreads.threadStartRoutine(JavaThreads.java:473)
-        at com.oracle.svm.core.posix.thread.PosixJavaThreads.pthreadStartRoutine(PosixJavaThreads.java:193)
-Caused by: io.netty.resolver.dns.DnsNameResolverException: [/8.8.8.8:53] failed to send a query (no stack trace available)
-Caused by: java.nio.channels.ClosedChannelException
+Error: Classes that should be initialized at run time got initialized during image building:
+ io.vertx.ext.web.client.predicate.ResponsePredicate was unintentionally initialized at build time.  To see why io.vertx.ext.web.client.predicate.ResponsePredicate got initialized use -H:+TraceClassInitializationio.vertx.ext.web.client.predicate.ErrorConverter was unintentionally initialized at build time.  To see why io.vertx.ext.web.client.predicate.ErrorConverter got initialized use -H:+TraceClassInitialization
+Error: Use -H:+ReportExceptionStackTraces to print stacktrace of underlying exception
 ----
 
-You could try to identify what is causing this or simply use the blocking DNS resolver with vert.x
-
-----
-$ ./target/hello_native -Dvertx.disableDnsResolver=true
-Got HTTP response with status 200 with data Two peanuts were walking down the street. One was a salted.
-----
-
-As you can imagine it is not interesting have this flags being added all the time you run your application. For this we can
-use the substitutions to patch the vert.x code to always use the desired mode:
+In this case we have to tweak the configuration and the order classes get initialized. By forcing vertx to be initialized at compile time and delay the offending classes like this:
 
 [source,java]
 ----
-/**
- * This substitution forces the usage of the blocking DNS resolver
- */
-@TargetClass(className = "io.vertx.core.spi.resolver.ResolverProvider")
-final class TargetResolverProvider {
-
-    @Substitute
-    public static ResolverProvider factory(Vertx vertx, AddressResolverOptions options) {
-        return new DefaultResolverProvider();
-    }
-}
+include::steps/step-8/src/main/resources/META-INF/native-image/com.example/myapp/native-image.properties[]
 ----
 
-If this class is added to the `SVMSubstitutions.java` during compilation the class `io.vertx.core.spi.resolver.ResolverProvider` will be patched to have the method `factory` always to return the blocking DNS resolver. So in this case when you build a new image you can run it as:
+The application will the work:
 
 ----
 $ ./target/hello_native
-Got HTTP response with status 200 with data Where do hamburgers go to dance? The meat-ball.
+Got HTTP response with status 200 with data Two peanuts were walking down the street. One was a salted.
 ----
 
 == Multiple Verticles
@@ -342,10 +278,7 @@ To configure reflection a json file is required and it must be configured on the
 
 [source,properties]
 ----
-Args =  --enable-all-security-services \
-        --rerun-class-initialization-at-runtime=io.netty.handler.codec.http2.Http2CodecUtil \
-        --delay-class-initialization-to-runtime=io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http2.DefaultHttp2FrameWriter,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder \
-        -H:ReflectionConfigurationFiles=classes/${.}/reflection.json
+include::steps/step-9/src/main/resources/META-INF/native-image/com.example/myapp/native-image.properties[]
 ----
 
 This is telling to the compiler to load a file called `reflection.json` which is relative to the current configuration. This file can be generated manually or with the help of an agent. The agent is currently unstable so this is the manually generated one:
@@ -417,5 +350,5 @@ And this concludes the native image howto.
 - We wrote a HTTPS server verticle.
 - We added the required security dll and configuration to build a image.
 - We wrote a HTTPS client verticle.
-- We patched the current vert.x library to resolve the DNS issue.
+- We handled a build issue by specifying the order of load of classes.
 - We configured reflection and resources to have multiple verticles in a single image.

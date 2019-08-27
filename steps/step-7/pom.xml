@@ -18,7 +18,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.testSource>1.8</maven.compiler.testSource>
     <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
-    <graal.version>1.0.0-rc14</graal.version>
+    <graal.version>19.2.0</graal.version>
   </properties>
 
   <dependencyManagement>
@@ -26,7 +26,7 @@
       <dependency>
         <groupId>io.vertx</groupId>
         <artifactId>vertx-stack-depchain</artifactId>
-        <version>3.6.3</version>
+        <version>3.8.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -84,7 +84,7 @@
         <configuration>
           <imageName>${project.name}</imageName>
           <mainClass>${vertx.verticle}</mainClass>
-          <buildArgs>-H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath</buildArgs>
+          <buildArgs>-H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath --enable-all-security-services -H:+TraceClassInitialization</buildArgs>
         </configuration>
       </plugin>
     </plugins>
