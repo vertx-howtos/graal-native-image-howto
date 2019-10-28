@@ -601,7 +601,7 @@ Got HTTP response with status 200 with data Two peanuts were walking down the st
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="properties"><span style="background-color: #f8f8f8">Args</span> <span style="background-color: #f8f8f8">=</span> <span style="color: #d14">--initialize-at-build-time=io.vertx,com.fasterxml.jackson </span><span style="color: #d14">\
-</span>       <span style="color: #d14">--initialize-at-run-time=io.netty.util.internal.logging.Log4JLogger,io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,io.netty.handler.codec.http2.Http2CodecUtil,io.netty.handler.codec.http2.DefaultHttp2FrameWriter,io.netty.handler.ssl.ReferenceCountedOpenSslServerContext,io.netty.handler.ssl.JdkNpnApplicationProtocolNegotiator,io.netty.handler.ssl.ReferenceCountedOpenSslEngine,io.netty.handler.ssl.ConscryptAlpnSslEngine,io.netty.handler.ssl.JettyNpnSslEngine,io.netty.handler.ssl.ReferenceCountedOpenSslContext,io.netty.handler.ssl.ReferenceCountedOpenSslClientContext,io.vertx.core.net.impl.transport.EpollTransport,io.vertx.core.net.impl.transport.KQueueTransport,io.vertx.core.http.impl.VertxHttp2ClientUpgradeCodec </span><span style="color: #d14">\
+</span>       <span style="color: #d14">--initialize-at-run-time=io.vertx.core.net.impl.PartialPooledByteBufAllocator,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateEncoder,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateDecoder,io.vertx.core.eventbus.impl.clustered.ClusteredEventBus,io.netty.util.internal.logging.Log4JLogger,io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,io.netty.handler.codec.http2.Http2CodecUtil,io.netty.handler.codec.http2.DefaultHttp2FrameWriter,io.netty.handler.ssl.ReferenceCountedOpenSslServerContext,io.netty.handler.ssl.JdkNpnApplicationProtocolNegotiator,io.netty.handler.ssl.ReferenceCountedOpenSslEngine,io.netty.handler.ssl.ConscryptAlpnSslEngine,io.netty.handler.ssl.JettyNpnSslEngine,io.netty.handler.ssl.ReferenceCountedOpenSslClientContext,io.vertx.core.net.impl.transport.EpollTransport,io.vertx.core.net.impl.transport.KQueueTransport,io.vertx.core.http.impl.VertxHttp2ClientUpgradeCodec,io.netty.handler.codec.http2.Http2ConnectionHandler </span><span style="color: #d14">\
 </span>       <span style="color: #d14">-H:ReflectionConfigurationResources=${.}/reflection.json</span></code></pre>
 </div>
 </div>
@@ -659,11 +659,11 @@ Got HTTP response with status 200 with data Two peanuts were walking down the st
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="properties"><span style="background-color: #f8f8f8">Args</span> <span style="background-color: #f8f8f8">=</span>  <span style="color: #d14">--enable-all-security-services </span><span style="color: #d14">\
-</span>        <span style="color: #d14">--rerun-class-initialization-at-runtime=io.netty.handler.codec.http2.Http2CodecUtil </span><span style="color: #d14">\
-</span>        <span style="color: #d14">--delay-class-initialization-to-runtime=--initialize-at-run-time=io.vertx.core.net.impl.PartialPooledByteBufAllocator,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateEncoder,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateDecoder,io.vertx.core.eventbus.impl.clustered.ClusteredEventBus,io.netty.util.internal.logging.Log4JLogger,io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,io.netty.handler.codec.http2.Http2CodecUtil,io.netty.handler.codec.http2.DefaultHttp2FrameWriter,io.netty.handler.ssl.ReferenceCountedOpenSslServerContext,io.netty.handler.ssl.JdkNpnApplicationProtocolNegotiator,io.netty.handler.ssl.ReferenceCountedOpenSslEngine,io.netty.handler.ssl.ConscryptAlpnSslEngine,io.netty.handler.ssl.JettyNpnSslEngine,io.netty.handler.ssl.ReferenceCountedOpenSslClientContext,io.vertx.core.net.impl.transport.EpollTransport,io.vertx.core.net.impl.transport.KQueueTransport,io.vertx.core.http.impl.VertxHttp2ClientUpgradeCodec,io.netty.handler.codec.http2.Http2ConnectionHandler </span><span style="color: #d14">\
-</span>        <span style="color: #d14">-H:IncludeResources=META-INF/.* </span><span style="color: #d14">\
-</span>        <span style="color: #d14">-H:ReflectionConfigurationFiles=classes/${.}/reflection.json</span></code></pre>
+<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="properties"><span style="background-color: #f8f8f8">Args</span> <span style="background-color: #f8f8f8">=</span>  <span style="color: #d14">--initialize-at-build-time=io.netty,io.vertx,com.fasterxml.jackson,javax </span><span style="color: #d14">\
+</span>        <span style="color: #d14">--initialize-at-run-time=io.vertx.core.net.impl.PartialPooledByteBufAllocator,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateEncoder,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateDecoder,io.vertx.core.eventbus.impl.clustered.ClusteredEventBus,io.netty.util.internal.logging.Log4JLogger,io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,io.netty.handler.codec.http2.Http2CodecUtil,io.netty.handler.codec.http2.DefaultHttp2FrameWriter,io.netty.handler.ssl.ReferenceCountedOpenSslServerContext,io.netty.handler.ssl.JdkNpnApplicationProtocolNegotiator,io.netty.handler.ssl.ReferenceCountedOpenSslEngine,io.netty.handler.ssl.ConscryptAlpnSslEngine,io.netty.handler.ssl.JettyNpnSslEngine,io.netty.handler.ssl.ReferenceCountedOpenSslClientContext,io.vertx.core.net.impl.transport.EpollTransport,io.vertx.core.net.impl.transport.KQueueTransport,io.vertx.core.http.impl.VertxHttp2ClientUpgradeCodec,io.netty.handler.codec.http2.Http2ConnectionHandler </span><span style="color: #d14">\
+</span>       <span style="color: #d14">-H:+UseServiceLoaderFeature </span><span style="color: #d14">\
+</span>       <span style="color: #d14">-H:IncludeResources=(META-INF|static|webroot|template)/.* </span><span style="color: #d14">\
+</span>       <span style="color: #d14">-H:ReflectionConfigurationResources=${.}/reflection.json</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -846,7 +846,7 @@ Server listening on http://localhost:8080/
   <div class="row">
     <div class="col">
       <hr>
-      <p><small>Last published: 2019-10-28 13:43:48 +0000.</small></p>
+      <p><small>Last published: 2019-10-28 13:45:50 +0000.</small></p>
     </div>
   </div>
 </div>
