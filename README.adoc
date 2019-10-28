@@ -296,11 +296,12 @@ If you build the image, everything will work **except** the default main verticl
 
 [source,properties]
 ----
-Args =  --enable-all-security-services \
-        --rerun-class-initialization-at-runtime=io.netty.handler.codec.http2.Http2CodecUtil \
-        --delay-class-initialization-to-runtime=--initialize-at-run-time=io.vertx.core.net.impl.PartialPooledByteBufAllocator,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateEncoder,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateDecoder,io.vertx.core.eventbus.impl.clustered.ClusteredEventBus,io.netty.util.internal.logging.Log4JLogger,io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,io.netty.handler.codec.http2.Http2CodecUtil,io.netty.handler.codec.http2.DefaultHttp2FrameWriter,io.netty.handler.ssl.ReferenceCountedOpenSslServerContext,io.netty.handler.ssl.JdkNpnApplicationProtocolNegotiator,io.netty.handler.ssl.ReferenceCountedOpenSslEngine,io.netty.handler.ssl.ConscryptAlpnSslEngine,io.netty.handler.ssl.JettyNpnSslEngine,io.netty.handler.ssl.ReferenceCountedOpenSslClientContext,io.vertx.core.net.impl.transport.EpollTransport,io.vertx.core.net.impl.transport.KQueueTransport,io.vertx.core.http.impl.VertxHttp2ClientUpgradeCodec,io.netty.handler.codec.http2.Http2ConnectionHandler \
-        -H:IncludeResources=META-INF/.* \
-        -H:ReflectionConfigurationFiles=classes/${.}/reflection.json
+Args =  --initialize-at-build-time=io.netty,io.vertx,com.fasterxml.jackson,javax \
+        --initialize-at-run-time=io.vertx.core.net.impl.PartialPooledByteBufAllocator,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateEncoder,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateDecoder,io.vertx.core.eventbus.impl.clustered.ClusteredEventBus,io.netty.util.internal.logging.Log4JLogger,io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,io.netty.handler.codec.http2.Http2CodecUtil,io.netty.handler.codec.http2.DefaultHttp2FrameWriter,io.netty.handler.ssl.ReferenceCountedOpenSslServerContext,io.netty.handler.ssl.JdkNpnApplicationProtocolNegotiator,io.netty.handler.ssl.ReferenceCountedOpenSslEngine,io.netty.handler.ssl.ConscryptAlpnSslEngine,io.netty.handler.ssl.JettyNpnSslEngine,io.netty.handler.ssl.ReferenceCountedOpenSslClientContext,io.vertx.core.net.impl.transport.EpollTransport,io.vertx.core.net.impl.transport.KQueueTransport,io.vertx.core.http.impl.VertxHttp2ClientUpgradeCodec,io.netty.handler.codec.http2.Http2ConnectionHandler \
+       -H:+UseServiceLoaderFeature \
+       -H:IncludeResources=(META-INF|static|webroot|template)/.* \
+       -H:ReflectionConfigurationResources=${.}/reflection.json
+
 ----
 
 So the include resources configuration now tells the compiler to include all the `META-INF` files in the image.
