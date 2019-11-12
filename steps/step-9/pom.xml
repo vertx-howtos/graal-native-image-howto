@@ -83,7 +83,7 @@
         <configuration>
           <imageName>${project.name}</imageName>
           <mainClass>io.vertx.core.Launcher</mainClass>
-          <buildArgs>-H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath --enable-all-security-services</buildArgs>
+          <buildArgs>--report-unsupported-elements-at-runtime --allow-incomplete-classpath --enable-all-security-services</buildArgs>
         </configuration>
       </plugin>
     </plugins>
