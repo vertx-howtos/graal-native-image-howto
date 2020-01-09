@@ -600,8 +600,16 @@ Got HTTP response with status 200 with data Two peanuts were walking down the st
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="properties"><span style="background-color: #f8f8f8">Args</span> <span style="background-color: #f8f8f8">=</span> <span style="color: #d14">--initialize-at-build-time=io.netty,io.vertx,com.fasterxml.jackson </span><span style="color: #d14">\
-</span>       <span style="color: #d14">--initialize-at-run-time=io.vertx.core.net.impl.PartialPooledByteBufAllocator,</span><span style="color: #d14">\
+<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="properties"><span style="background-color: #f8f8f8">Args</span> <span style="background-color: #f8f8f8">=</span> <span style="color: #d14">--initialize-at-run-time=io.netty.channel.DefaultChannelId,</span><span style="color: #d14">\
+</span><span style="color: #d14">io.netty.buffer.PooledByteBufAllocator,</span><span style="color: #d14">\
+</span><span style="color: #d14">io.netty.util.NetUtil,</span><span style="color: #d14">\
+</span><span style="color: #d14">io.netty.channel.socket.InternetProtocolFamily,</span><span style="color: #d14">\
+</span><span style="color: #d14">io.netty.resolver.HostsFileEntriesResolver,</span><span style="color: #d14">\
+</span><span style="color: #d14">io.netty.resolver.dns.DnsNameResolver,</span><span style="color: #d14">\
+</span><span style="color: #d14">io.netty.resolver.dns.DnsServerAddressStreamProviders,</span><span style="color: #d14">\
+</span><span style="color: #d14">io.netty.resolver.dns.PreferredAddressTypeComparator</span><span style="color: #d14">\$</span><span style="color: #d14">1,</span><span style="color: #d14">\
+</span><span style="color: #d14">io.netty.resolver.dns.DefaultDnsServerAddressStreamProvider,</span><span style="color: #d14">\
+</span><span style="color: #d14">io.vertx.core.impl.AddressResolver,</span><span style="color: #d14">\
 </span><span style="color: #d14">io.netty.handler.codec.http.websocketx.extensions.compression.DeflateEncoder,</span><span style="color: #d14">\
 </span><span style="color: #d14">io.netty.handler.codec.http.websocketx.extensions.compression.DeflateDecoder,</span><span style="color: #d14">\
 </span><span style="color: #d14">io.netty.handler.codec.http.HttpObjectEncoder,</span><span style="color: #d14">\
@@ -615,6 +623,8 @@ Got HTTP response with status 200 with data Two peanuts were walking down the st
 </span><span style="color: #d14">io.netty.handler.ssl.ReferenceCountedOpenSslEngine,</span><span style="color: #d14">\
 </span><span style="color: #d14">io.netty.handler.ssl.ConscryptAlpnSslEngine,</span><span style="color: #d14">\
 </span><span style="color: #d14">io.netty.handler.ssl.JettyNpnSslEngine,</span><span style="color: #d14">\
+</span><span style="color: #d14">io.netty.handler.ssl.JettyAlpnSslEngine$ClientEngine,</span><span style="color: #d14">\
+</span><span style="color: #d14">io.netty.handler.ssl.JettyAlpnSslEngine$ServerEngine,</span><span style="color: #d14">\
 </span><span style="color: #d14">io.netty.handler.ssl.ReferenceCountedOpenSslContext,</span><span style="color: #d14">\
 </span><span style="color: #d14">io.netty.handler.ssl.ReferenceCountedOpenSslClientContext,</span><span style="color: #d14">\
 </span><span style="color: #d14">io.vertx.core.net.impl.transport.EpollTransport,</span><span style="color: #d14">\
@@ -865,7 +875,7 @@ Server listening on http://localhost:8080/
   <div class="row">
     <div class="col">
       <hr>
-      <p><small>Last published: 2019-11-12 08:41:38 +0000.</small></p>
+      <p><small>Last published: 2020-01-09 19:33:07 +0000.</small></p>
     </div>
   </div>
 </div>
