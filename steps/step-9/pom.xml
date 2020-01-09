@@ -76,7 +76,7 @@
         <configuration>
           <imageName>${project.name}</imageName>
           <mainClass>io.vertx.core.Launcher</mainClass>
-          <buildArgs>-H:+TraceClassInitialization --no-server --report-unsupported-elements-at-runtime --allow-incomplete-classpath --enable-all-security-services --no-fallback</buildArgs>
+          <buildArgs>--no-server --report-unsupported-elements-at-runtime --allow-incomplete-classpath --enable-all-security-services --no-fallback</buildArgs>
         </configuration>
       </plugin>
     </plugins>
