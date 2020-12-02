@@ -3,7 +3,7 @@ jdk: openjdk8
 
 install: true
 
-script: mvn -f steps/step-9/pom.xml clean compile
+script: mvn -f steps/step-2/pom.xml clean compile
 
 before_deploy: ./.run.jekyll.sh
 
