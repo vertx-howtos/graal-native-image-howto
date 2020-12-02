@@ -80,7 +80,7 @@
 <p>A text editor or IDE</p>
 </li>
 <li>
-<p>GraalVM (&gt;= 19.2.0)</p>
+<p>GraalVM (20.3.0)</p>
 </li>
 <li>
 <p>Maven</p>
@@ -130,13 +130,14 @@ native.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>step-1
-├── pom.xml
+<pre>├── pom.xml
 └── src
     └── main
         └── java
             └── vertx
-                └── HTTPVerticle.java</pre>
+                └── APIClientVerticle.java
+                └── HTTPVerticle.java
+                └── HTTPSVerticle.java</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -171,7 +172,7 @@ native.</p>
       <span style="color: #000080">&lt;dependency&gt;</span>
         <span style="color: #000080">&lt;groupId&gt;</span>io.vertx<span style="color: #000080">&lt;/groupId&gt;</span>
         <span style="color: #000080">&lt;artifactId&gt;</span>vertx-stack-depchain<span style="color: #000080">&lt;/artifactId&gt;</span>
-        <span style="color: #000080">&lt;version&gt;</span>3.8.1<span style="color: #000080">&lt;/version&gt;</span>
+        <span style="color: #000080">&lt;version&gt;</span>4.0.0.CR2<span style="color: #000080">&lt;/version&gt;</span>
         <span style="color: #000080">&lt;type&gt;</span>pom<span style="color: #000080">&lt;/type&gt;</span>
         <span style="color: #000080">&lt;scope&gt;</span>import<span style="color: #000080">&lt;/scope&gt;</span>
       <span style="color: #000080">&lt;/dependency&gt;</span>
@@ -218,7 +219,7 @@ native.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="java"><span style="color: #000000;font-weight: bold">package</span> <span style="background-color: #f8f8f8">vertx</span><span style="color: #000000;font-weight: bold">;</span>
+<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="java"><span style="color: #000000;font-weight: bold">package</span> <span style="color: #555555">vertx</span><span style="color: #000000;font-weight: bold">;</span>
 
 <span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">io.vertx.core.AbstractVerticle</span><span style="color: #000000;font-weight: bold">;</span>
 
@@ -245,6 +246,9 @@ native.</p>
 <div class="paragraph">
 <p>Until this moment there is nothing new. It is a plain vert.x java project.</p>
 </div>
+<div class="paragraph">
+<p>The same applies for the remaining sources (which will be covered later).</p>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -256,9 +260,9 @@ native.</p>
 <div class="listingblock collapsed">
 <div class="content">
 <pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="xml"><span style="color: #000080">&lt;plugin&gt;</span>
-  <span style="color: #000080">&lt;groupId&gt;</span>com.oracle.substratevm<span style="color: #000080">&lt;/groupId&gt;</span>
+  <span style="color: #000080">&lt;groupId&gt;</span>org.graalvm.nativeimage<span style="color: #000080">&lt;/groupId&gt;</span>
   <span style="color: #000080">&lt;artifactId&gt;</span>native-image-maven-plugin<span style="color: #000080">&lt;/artifactId&gt;</span>
-  <span style="color: #000080">&lt;version&gt;</span>${graal.version}<span style="color: #000080">&lt;/version&gt;</span>   <b class="conum">(1)</b>
+  <span style="color: #000080">&lt;version&gt;</span>${graal.version}<span style="color: #000080">&lt;/version&gt;</span>   &lt;!--<b class="conum">(1)</b>--&gt;
   <span style="color: #000080">&lt;executions&gt;</span>
     <span style="color: #000080">&lt;execution&gt;</span>
       <span style="color: #000080">&lt;goals&gt;</span>
@@ -268,9 +272,9 @@ native.</p>
     <span style="color: #000080">&lt;/execution&gt;</span>
   <span style="color: #000080">&lt;/executions&gt;</span>
   <span style="color: #000080">&lt;configuration&gt;</span>
-    <span style="color: #000080">&lt;imageName&gt;</span>${project.name}<span style="color: #000080">&lt;/imageName&gt;</span>    <b class="conum">(2)</b>
-    <span style="color: #000080">&lt;mainClass&gt;</span>${vertx.verticle}<span style="color: #000080">&lt;/mainClass&gt;</span>  <b class="conum">(3)</b>
-    <span style="color: #000080">&lt;buildArgs&gt;</span>-H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath<span style="color: #000080">&lt;/buildArgs&gt;</span> <b class="conum">(4)</b>
+    <span style="color: #000080">&lt;imageName&gt;</span>${project.name}<span style="color: #000080">&lt;/imageName&gt;</span>    &lt;!--<b class="conum">(2)</b>--&gt;
+    <span style="color: #000080">&lt;mainClass&gt;</span>${vertx.verticle}<span style="color: #000080">&lt;/mainClass&gt;</span>  &lt;!--<b class="conum">(3)</b>--&gt;
+    <span style="color: #000080">&lt;buildArgs&gt;</span>-H:+PrintClassInitialization -H:+ReportExceptionStackTraces<span style="color: #000080">&lt;/buildArgs&gt;</span> &lt;!--<b class="conum">(4)</b>--&gt;
   <span style="color: #000080">&lt;/configuration&gt;</span>
 <span style="color: #000080">&lt;/plugin&gt;</span></code></pre>
 </div>
@@ -287,7 +291,7 @@ native.</p>
 <p>The main start class</p>
 </li>
 <li>
-<p>The arguments to pass to the compiler (in this case we allow incomplete class since there are optional jars in our code we don&#8217;t want to include, and report errors at runtime so we can allow building applications that cannot be fully analyzed by graal at the current moment).</p>
+<p>The arguments to pass to the compiler (in this case we want to have some debug information in case things go wrong).</p>
 </li>
 </ol>
 </div>
@@ -305,7 +309,7 @@ native.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>However this will fail as there is no <code>public static void main</code> method in the declared main class. We fix this by adding it to <code>HTTPVerticle</code>:</p>
+<p>However this will fail as there is no <code>public static void main</code> method in the declared main class. We fix this by either adding it to <code>HTTPVerticle</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -315,47 +319,47 @@ native.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>You should now have the following:</p>
+<p>Or configure the reflection config of graalvm to not exclude our verticles:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>step-3
-├── pom.xml
-└── src
-    └── main
-        ├── java
-        │   └── vertx
-        │       └── HTTPVerticle.java</pre>
+<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="java"><span style="color: #000000;font-weight: bold">[</span>
+  <span style="color: #000000;font-weight: bold">{</span>
+    <span style="color: #d14">"name"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #d14">"io.vertx.core.impl.launcher.commands.RunCommand"</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredConstructors"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredMethods"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span>
+  <span style="color: #000000;font-weight: bold">},</span>
+  <span style="color: #000000;font-weight: bold">{</span>
+    <span style="color: #d14">"name"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #d14">"io.vertx.core.impl.launcher.commands.VertxIsolatedDeployer"</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredConstructors"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredMethods"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span>
+  <span style="color: #000000;font-weight: bold">},</span>
+  <span style="color: #000000;font-weight: bold">{</span>
+    <span style="color: #d14">"name"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #d14">"java.lang.Long"</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredConstructors"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span>
+  <span style="color: #000000;font-weight: bold">},</span>
+  <span style="color: #000000;font-weight: bold">{</span>
+    <span style="color: #d14">"name"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #d14">"java.lang.Integer"</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredConstructors"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span>
+  <span style="color: #000000;font-weight: bold">},</span>
+
+  <span style="color: #000000;font-weight: bold">{</span>
+    <span style="color: #d14">"name"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #d14">"vertx.HTTPVerticle"</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredConstructors"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredMethods"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span>
+  <span style="color: #000000;font-weight: bold">},</span>
+  <span style="color: #000000;font-weight: bold">{</span>
+    <span style="color: #d14">"name"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #d14">"vertx.HTTPSVerticle"</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredConstructors"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredMethods"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span>
+  <span style="color: #000000;font-weight: bold">},</span>
+  <span style="color: #000000;font-weight: bold">{</span>
+    <span style="color: #d14">"name"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #d14">"vertx.APIClientVerticle"</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredConstructors"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span><span style="color: #000000;font-weight: bold">,</span>
+    <span style="color: #d14">"allDeclaredMethods"</span><span style="color: #000000;font-weight: bold">:</span> <span style="color: #000000;font-weight: bold">true</span>
+  <span style="color: #000000;font-weight: bold">}</span>
+<span style="color: #000000;font-weight: bold">]</span></code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>Building show now output:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ mvn package
-[INFO] Scanning for projects...
-...
-[hello_native:12244]      compile:  27,868.04 ms
-[hello_native:12244]        image:   2,177.81 ms
-[hello_native:12244]        write:     334.70 ms
-[hello_native:12244]      [total]:  63,193.72 ms
-[INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESS
-[INFO] ------------------------------------------------------------------------</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>And you can test it:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ ./target/hello_native
-Server listening on http://localhost:8080/</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Congratulations, you just build your first native image.</p>
 </div>
 </div>
 </div>
@@ -370,18 +374,13 @@ Server listening on http://localhost:8080/</pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="java"><span style="color: #000000;font-weight: bold">package</span> <span style="background-color: #f8f8f8">vertx</span><span style="color: #000000;font-weight: bold">;</span>
+<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="java"><span style="color: #000000;font-weight: bold">package</span> <span style="color: #555555">vertx</span><span style="color: #000000;font-weight: bold">;</span>
 
 <span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">io.vertx.core.AbstractVerticle</span><span style="color: #000000;font-weight: bold">;</span>
-<span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">io.vertx.core.Vertx</span><span style="color: #000000;font-weight: bold">;</span>
 <span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">io.vertx.core.http.HttpServerOptions</span><span style="color: #000000;font-weight: bold">;</span>
 <span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">io.vertx.core.net.JksOptions</span><span style="color: #000000;font-weight: bold">;</span>
 
 <span style="color: #000000;font-weight: bold">public</span> <span style="color: #000000;font-weight: bold">class</span> <span style="color: #445588;font-weight: bold">HTTPSVerticle</span> <span style="color: #000000;font-weight: bold">extends</span> <span style="color: #445588;font-weight: bold">AbstractVerticle</span> <span style="color: #000000;font-weight: bold">{</span>
-
-  <span style="color: #000000;font-weight: bold">public</span> <span style="color: #000000;font-weight: bold">static</span> <span style="color: #445588;font-weight: bold">void</span> <span style="color: #990000;font-weight: bold">main</span><span style="color: #000000;font-weight: bold">(</span><span style="color: #445588;font-weight: bold">String</span><span style="color: #000000;font-weight: bold">[]</span> <span style="background-color: #f8f8f8">args</span><span style="color: #000000;font-weight: bold">)</span> <span style="color: #000000;font-weight: bold">{</span>
-    <span style="color: #445588;font-weight: bold">Vertx</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">vertx</span><span style="color: #000000;font-weight: bold">().</span><span style="color: #008080">deployVerticle</span><span style="color: #000000;font-weight: bold">(</span><span style="color: #000000;font-weight: bold">new</span> <span style="color: #445588;font-weight: bold">HTTPSVerticle</span><span style="color: #000000;font-weight: bold">());</span>
-  <span style="color: #000000;font-weight: bold">}</span>
 
   <span style="color: #3c5d5d;font-weight: bold">@Override</span>
   <span style="color: #000000;font-weight: bold">public</span> <span style="color: #445588;font-weight: bold">void</span> <span style="color: #990000;font-weight: bold">start</span><span style="color: #000000;font-weight: bold">()</span> <span style="color: #000000;font-weight: bold">{</span>
@@ -445,15 +444,12 @@ $ keytool \
 </div>
 </div>
 <div class="paragraph">
-<p>If you build the image this will compile, but won&#8217;t work at runtime. Two things are needed:</p>
+<p>If you build the image this will compile, but won&#8217;t work at runtime. One thing is needed:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
 <p>Enable the security features to be added to the native image</p>
-</li>
-<li>
-<p>A GraalVM/OpenJDK specific <code>dll</code> must be in your libs or in the current working directory.</p>
 </li>
 </ol>
 </div>
@@ -465,49 +461,9 @@ $ keytool \
 <pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="xml"><span style="color: #000080">&lt;configuration&gt;</span>
   <span style="color: #000080">&lt;imageName&gt;</span>${project.name}<span style="color: #000080">&lt;/imageName&gt;</span>
   <span style="color: #000080">&lt;mainClass&gt;</span>${vertx.verticle}<span style="color: #000080">&lt;/mainClass&gt;</span>
-  <span style="color: #000080">&lt;buildArgs&gt;</span>-H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath --enable-all-security-services<span style="color: #000080">&lt;/buildArgs&gt;</span>
+  <span style="color: #000080">&lt;buildArgs&gt;</span>--enable-all-security-services<span style="color: #000080">&lt;/buildArgs&gt;</span>
 <span style="color: #000080">&lt;/configuration&gt;</span></code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>And you should copy <code>libsunec.so</code> to your local directory.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>step-6
-├── certificates.keystore
-├── libsunec.so
-├── pom.xml
-└── src
-    └── main
-        ├── java
-        │   └── vertx
-        │       ├── HTTPSVerticle.java
-        │       └── HTTPVerticle.java</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Again build and run:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ mvn package
-[INFO] Scanning for projects...
-...
-[hello_native:12244]      compile:  25,963.39 ms
-[hello_native:12244]        image:   2,391.10 ms
-[hello_native:12244]        write:     339.03 ms
-[hello_native:12244]      [total]:  60,812.12 ms
-[INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESS
-[INFO] ------------------------------------------------------------------------
-
-$ ./target/hello_native
-Server listening on https://localhost:8443/</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>You have now your first HTTPS server running.</p>
 </div>
 </div>
 </div>
@@ -515,25 +471,19 @@ Server listening on https://localhost:8443/</pre>
 <h2 id="native-clients">Native Clients</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now that we covered basic images and security we can touch clients. For this example we will consume a simple HTTPS API.</p>
+<p>Now that we covered basic SSL security we can touch clients. For this example we will consume a simple HTTPS API.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="java"><span style="color: #000000;font-weight: bold">package</span> <span style="background-color: #f8f8f8">vertx</span><span style="color: #000000;font-weight: bold">;</span>
+<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="java"><span style="color: #000000;font-weight: bold">package</span> <span style="color: #555555">vertx</span><span style="color: #000000;font-weight: bold">;</span>
 
 <span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">io.vertx.core.AbstractVerticle</span><span style="color: #000000;font-weight: bold">;</span>
-<span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">io.vertx.core.Vertx</span><span style="color: #000000;font-weight: bold">;</span>
 <span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">io.vertx.core.buffer.Buffer</span><span style="color: #000000;font-weight: bold">;</span>
 <span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">io.vertx.ext.web.client.HttpResponse</span><span style="color: #000000;font-weight: bold">;</span>
 <span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">io.vertx.ext.web.client.WebClient</span><span style="color: #000000;font-weight: bold">;</span>
 <span style="color: #000000;font-weight: bold">import</span> <span style="color: #555555">io.vertx.ext.web.client.WebClientOptions</span><span style="color: #000000;font-weight: bold">;</span>
 
 <span style="color: #000000;font-weight: bold">public</span> <span style="color: #000000;font-weight: bold">class</span> <span style="color: #445588;font-weight: bold">APIClientVerticle</span> <span style="color: #000000;font-weight: bold">extends</span> <span style="color: #445588;font-weight: bold">AbstractVerticle</span> <span style="color: #000000;font-weight: bold">{</span>
-
-
-  <span style="color: #000000;font-weight: bold">public</span> <span style="color: #000000;font-weight: bold">static</span> <span style="color: #445588;font-weight: bold">void</span> <span style="color: #990000;font-weight: bold">main</span><span style="color: #000000;font-weight: bold">(</span><span style="color: #445588;font-weight: bold">String</span><span style="color: #000000;font-weight: bold">[]</span> <span style="background-color: #f8f8f8">args</span><span style="color: #000000;font-weight: bold">)</span> <span style="color: #000000;font-weight: bold">{</span>
-    <span style="color: #445588;font-weight: bold">Vertx</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">vertx</span><span style="color: #000000;font-weight: bold">().</span><span style="color: #008080">deployVerticle</span><span style="color: #000000;font-weight: bold">(</span><span style="color: #000000;font-weight: bold">new</span> <span style="color: #445588;font-weight: bold">APIClientVerticle</span><span style="color: #000000;font-weight: bold">());</span>
-  <span style="color: #000000;font-weight: bold">}</span>
 
   <span style="color: #3c5d5d;font-weight: bold">@Override</span>
   <span style="color: #000000;font-weight: bold">public</span> <span style="color: #445588;font-weight: bold">void</span> <span style="color: #990000;font-weight: bold">start</span><span style="color: #000000;font-weight: bold">()</span> <span style="color: #000000;font-weight: bold">{</span>
@@ -556,173 +506,276 @@ Server listening on https://localhost:8443/</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This client will make a HTTPS request and print the output on the console. The application will fail to build:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>Error: Classes that should be initialized at run time got initialized during image building:
- io.vertx.ext.web.client.predicate.ResponsePredicate was unintentionally initialized at build time.  To see why io.vertx.ext.web.client.predicate.ResponsePredicate got initialized use -H:+TraceClassInitializationio.vertx.ext.web.client.predicate.ErrorConverter was unintentionally initialized at build time.  To see why io.vertx.ext.web.client.predicate.ErrorConverter got initialized use -H:+TraceClassInitialization
-Error: Use -H:+ReportExceptionStackTraces to print stacktrace of underlying exception</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>In this case we have to tweak the configuration and the order classes get initialized. By forcing vertx to be initialized at compile time and delay the offending classes like this:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="java"><span style="color: #445588;font-weight: bold">Args</span> <span style="color: #000000;font-weight: bold">=</span> <span style="color: #000000;font-weight: bold">--</span><span style="background-color: #f8f8f8">initialize</span><span style="color: #000000;font-weight: bold">-</span><span style="background-color: #f8f8f8">at</span><span style="color: #000000;font-weight: bold">-</span><span style="background-color: #f8f8f8">build</span><span style="color: #000000;font-weight: bold">-</span><span style="background-color: #f8f8f8">time</span><span style="color: #000000;font-weight: bold">=</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">vertx</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">com</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">fasterxml</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">jackson</span> <span style="color: #a61717;background-color: #e3d2d2">\</span>
-       <span style="color: #000000;font-weight: bold">--</span><span style="background-color: #f8f8f8">initialize</span><span style="color: #000000;font-weight: bold">-</span><span style="background-color: #f8f8f8">at</span><span style="color: #000000;font-weight: bold">-</span><span style="background-color: #f8f8f8">run</span><span style="color: #000000;font-weight: bold">-</span><span style="background-color: #f8f8f8">time</span><span style="color: #000000;font-weight: bold">=</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">netty</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">util</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">internal</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">logging</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">Log4JLogger</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">netty</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">handler</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">codec</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">http</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">HttpObjectEncoder</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">netty</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">handler</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">codec</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">http</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">websocketx</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">WebSocket00FrameEncoder</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">netty</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">handler</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">codec</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">http2</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">Http2CodecUtil</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">netty</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">handler</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">codec</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">http2</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">DefaultHttp2FrameWriter</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">netty</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">handler</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">ssl</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">ReferenceCountedOpenSslServerContext</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">netty</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">handler</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">ssl</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">JdkNpnApplicationProtocolNegotiator</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">netty</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">handler</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">ssl</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">ReferenceCountedOpenSslEngine</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">netty</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">handler</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">ssl</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">ConscryptAlpnSslEngine</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">netty</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">handler</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">ssl</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">JettyNpnSslEngine</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">netty</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">handler</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">ssl</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">ReferenceCountedOpenSslClientContext</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">vertx</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">core</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">net</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">impl</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">transport</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">EpollTransport</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">vertx</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">core</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">net</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">impl</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">transport</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">KQueueTransport</span><span style="color: #000000;font-weight: bold">,</span><span style="background-color: #f8f8f8">io</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">vertx</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">core</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">http</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">impl</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">VertxHttp2ClientUpgradeCodec</span> <span style="color: #a61717;background-color: #e3d2d2">\</span>
-       <span style="color: #000000;font-weight: bold">-</span><span style="color: #990000;font-weight: bold">H:</span><span style="color: #445588;font-weight: bold">ReflectionConfigurationResources</span><span style="color: #000000;font-weight: bold">=</span><span style="color: #a61717;background-color: #e3d2d2">$</span><span style="color: #000000;font-weight: bold">{.}/</span><span style="background-color: #f8f8f8">reflection</span><span style="color: #000000;font-weight: bold">.</span><span style="color: #008080">json</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The application will the work:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>$ ./target/hello_native
-Got HTTP response with status 200 with data Two peanuts were walking down the street. One was a salted.</pre>
-</div>
+<p>This client will make a HTTPS request and print the output on the console.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="multiple-verticles">Multiple Verticles</h2>
+<h2 id="build">Build</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We have a simple project with 3 verticles, it would be interesting to use the vert.x launcher to allow using the 3 from the same image as we do from a single jar.</p>
-</div>
-<div class="paragraph">
-<p>Sadly vert.x lancher relies on reflection which is requires configuration to get working on native.</p>
-</div>
-<div class="paragraph">
-<p>To configure reflection a json file is required and it must be configured on the <code>native-image.properties</code>:</p>
+<p>At this moment you should have a basic application and your <code>pom.xml</code> should look like:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="properties"><span style="background-color: #f8f8f8">Args</span> <span style="background-color: #f8f8f8">=</span> <span style="color: #d14">--initialize-at-run-time=io.netty.channel.DefaultChannelId,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.buffer.PooledByteBufAllocator,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.util.NetUtil,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.channel.socket.InternetProtocolFamily,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.resolver.HostsFileEntriesResolver,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.resolver.dns.DnsNameResolver,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.resolver.dns.DnsServerAddressStreamProviders,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.resolver.dns.PreferredAddressTypeComparator</span><span style="color: #d14">\$</span><span style="color: #d14">1,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.resolver.dns.DefaultDnsServerAddressStreamProvider,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.vertx.core.impl.AddressResolver,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.codec.http.websocketx.extensions.compression.DeflateEncoder,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.codec.http.websocketx.extensions.compression.DeflateDecoder,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.codec.http.HttpObjectEncoder,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.codec.http2.Http2CodecUtil,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.codec.http2.Http2ConnectionHandler,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.codec.http2.DefaultHttp2FrameWriter,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.util.internal.logging.Log4JLogger,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.ssl.ReferenceCountedOpenSslServerContext,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.ssl.JdkNpnApplicationProtocolNegotiator,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.ssl.ReferenceCountedOpenSslEngine,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.ssl.ConscryptAlpnSslEngine,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.ssl.JettyNpnSslEngine,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.ssl.JettyAlpnSslEngine$ClientEngine,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.ssl.JettyAlpnSslEngine$ServerEngine,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.ssl.ReferenceCountedOpenSslContext,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.netty.handler.ssl.ReferenceCountedOpenSslClientContext,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.vertx.core.net.impl.transport.EpollTransport,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.vertx.core.net.impl.transport.KQueueTransport,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.vertx.core.http.impl.VertxHttp2ClientUpgradeCodec,</span><span style="color: #d14">\
-</span><span style="color: #d14">io.vertx.core.eventbus.impl.clustered.ClusteredEventBus </span><span style="color: #d14">\
-</span>       <span style="color: #d14">-H:ReflectionConfigurationResources=${.}/reflection.json</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This is telling to the compiler to load a file called <code>reflection.json</code> which is relative to the current configuration. This file can be generated manually or with the help of an agent. The agent is currently unstable so this is the manually generated one:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="json"><span style="background-color: #f8f8f8">[</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"name"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"io.vertx.core.impl.launcher.commands.RunCommand"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredConstructors"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredMethods"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"name"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"io.vertx.core.impl.launcher.commands.VertxIsolatedDeployer"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredConstructors"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredMethods"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"name"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"java.lang.Long"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredConstructors"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"name"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"java.lang.Integer"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredConstructors"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
+<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="xml"><span style="color: #999999;font-weight: bold">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span>
+<span style="color: #000080">&lt;project</span> <span style="color: #008080">xmlns=</span><span style="color: #d14">"http://maven.apache.org/POM/4.0.0"</span> <span style="color: #008080">xmlns:xsi=</span><span style="color: #d14">"http://www.w3.org/2001/XMLSchema-instance"</span> <span style="color: #008080">xsi:schemaLocation=</span><span style="color: #d14">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span><span style="color: #000080">&gt;</span>
 
-  </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"name"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"vertx.HTTPVerticle"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredConstructors"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredMethods"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"name"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"vertx.HTTPSVerticle"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredConstructors"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredMethods"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">},</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">{</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"name"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #d14">"vertx.APIClientVerticle"</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredConstructors"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="background-color: #f8f8f8">,</span><span style="color: #bbbbbb">
-    </span><span style="color: #990000;font-weight: bold">"allDeclaredMethods"</span><span style="background-color: #f8f8f8">:</span><span style="color: #bbbbbb"> </span><span style="color: #000000;font-weight: bold">true</span><span style="color: #bbbbbb">
-  </span><span style="background-color: #f8f8f8">}</span><span style="color: #bbbbbb">
-</span><span style="background-color: #f8f8f8">]</span></code></pre>
+  <span style="color: #000080">&lt;modelVersion&gt;</span>4.0.0<span style="color: #000080">&lt;/modelVersion&gt;</span>
+
+  <span style="color: #000080">&lt;groupId&gt;</span>com.example<span style="color: #000080">&lt;/groupId&gt;</span>
+  <span style="color: #000080">&lt;artifactId&gt;</span>myapp<span style="color: #000080">&lt;/artifactId&gt;</span>
+  <span style="color: #000080">&lt;version&gt;</span>0.0.1-SNAPSHOT<span style="color: #000080">&lt;/version&gt;</span>
+
+  <span style="color: #000080">&lt;name&gt;</span>hello_native<span style="color: #000080">&lt;/name&gt;</span>
+
+  <span style="color: #000080">&lt;properties&gt;</span>
+    <span style="color: #000080">&lt;vertx.verticle&gt;</span>vertx.APIClientVerticle<span style="color: #000080">&lt;/vertx.verticle&gt;</span>
+
+    <span style="color: #000080">&lt;project.build.sourceEncoding&gt;</span>UTF-8<span style="color: #000080">&lt;/project.build.sourceEncoding&gt;</span>
+    <span style="color: #000080">&lt;maven.compiler.target&gt;</span>1.8<span style="color: #000080">&lt;/maven.compiler.target&gt;</span>
+    <span style="color: #000080">&lt;maven.compiler.source&gt;</span>1.8<span style="color: #000080">&lt;/maven.compiler.source&gt;</span>
+    <span style="color: #000080">&lt;maven.compiler.testSource&gt;</span>1.8<span style="color: #000080">&lt;/maven.compiler.testSource&gt;</span>
+    <span style="color: #000080">&lt;maven.compiler.testTarget&gt;</span>1.8<span style="color: #000080">&lt;/maven.compiler.testTarget&gt;</span>
+    <span style="color: #000080">&lt;graal.version&gt;</span>20.3.0<span style="color: #000080">&lt;/graal.version&gt;</span>
+  <span style="color: #000080">&lt;/properties&gt;</span>
+
+  <span style="color: #000080">&lt;dependencyManagement&gt;</span>
+    <span style="color: #000080">&lt;dependencies&gt;</span>
+      <span style="color: #000080">&lt;dependency&gt;</span>
+        <span style="color: #000080">&lt;groupId&gt;</span>io.vertx<span style="color: #000080">&lt;/groupId&gt;</span>
+        <span style="color: #000080">&lt;artifactId&gt;</span>vertx-stack-depchain<span style="color: #000080">&lt;/artifactId&gt;</span>
+        <span style="color: #000080">&lt;version&gt;</span>4.0.0-SNAPSHOT<span style="color: #000080">&lt;/version&gt;</span>
+        <span style="color: #000080">&lt;type&gt;</span>pom<span style="color: #000080">&lt;/type&gt;</span>
+        <span style="color: #000080">&lt;scope&gt;</span>import<span style="color: #000080">&lt;/scope&gt;</span>
+      <span style="color: #000080">&lt;/dependency&gt;</span>
+    <span style="color: #000080">&lt;/dependencies&gt;</span>
+  <span style="color: #000080">&lt;/dependencyManagement&gt;</span>
+
+  <span style="color: #000080">&lt;dependencies&gt;</span>
+    <span style="color: #000080">&lt;dependency&gt;</span>
+      <span style="color: #000080">&lt;groupId&gt;</span>io.vertx<span style="color: #000080">&lt;/groupId&gt;</span>
+      <span style="color: #000080">&lt;artifactId&gt;</span>vertx-core<span style="color: #000080">&lt;/artifactId&gt;</span>
+    <span style="color: #000080">&lt;/dependency&gt;</span>
+    <span style="color: #000080">&lt;dependency&gt;</span>
+      <span style="color: #000080">&lt;groupId&gt;</span>io.vertx<span style="color: #000080">&lt;/groupId&gt;</span>
+      <span style="color: #000080">&lt;artifactId&gt;</span>vertx-web-client<span style="color: #000080">&lt;/artifactId&gt;</span>
+    <span style="color: #000080">&lt;/dependency&gt;</span>
+  <span style="color: #000080">&lt;/dependencies&gt;</span>
+
+  <span style="color: #000080">&lt;build&gt;</span>
+    <span style="color: #000080">&lt;plugins&gt;</span>
+      <span style="color: #000080">&lt;plugin&gt;</span>
+        <span style="color: #000080">&lt;groupId&gt;</span>io.reactiverse<span style="color: #000080">&lt;/groupId&gt;</span>
+        <span style="color: #000080">&lt;artifactId&gt;</span>vertx-maven-plugin<span style="color: #000080">&lt;/artifactId&gt;</span>
+        <span style="color: #000080">&lt;version&gt;</span>1.0.22<span style="color: #000080">&lt;/version&gt;</span>
+        <span style="color: #000080">&lt;executions&gt;</span>
+          <span style="color: #000080">&lt;execution&gt;</span>
+            <span style="color: #000080">&lt;id&gt;</span>vmp<span style="color: #000080">&lt;/id&gt;</span>
+            <span style="color: #000080">&lt;goals&gt;</span>
+              <span style="color: #000080">&lt;goal&gt;</span>initialize<span style="color: #000080">&lt;/goal&gt;</span>
+            <span style="color: #000080">&lt;/goals&gt;</span>
+          <span style="color: #000080">&lt;/execution&gt;</span>
+        <span style="color: #000080">&lt;/executions&gt;</span>
+        <span style="color: #000080">&lt;configuration&gt;</span>
+          <span style="color: #000080">&lt;redeploy&gt;</span>true<span style="color: #000080">&lt;/redeploy&gt;</span>
+        <span style="color: #000080">&lt;/configuration&gt;</span>
+      <span style="color: #000080">&lt;/plugin&gt;</span>
+      <span style="color: #000080">&lt;plugin&gt;</span>
+        <span style="color: #000080">&lt;groupId&gt;</span>org.graalvm.nativeimage<span style="color: #000080">&lt;/groupId&gt;</span>
+        <span style="color: #000080">&lt;artifactId&gt;</span>native-image-maven-plugin<span style="color: #000080">&lt;/artifactId&gt;</span>
+        <span style="color: #000080">&lt;version&gt;</span>${graal.version}<span style="color: #000080">&lt;/version&gt;</span>
+        <span style="color: #000080">&lt;executions&gt;</span>
+          <span style="color: #000080">&lt;execution&gt;</span>
+            <span style="color: #000080">&lt;goals&gt;</span>
+              <span style="color: #000080">&lt;goal&gt;</span>native-image<span style="color: #000080">&lt;/goal&gt;</span>
+            <span style="color: #000080">&lt;/goals&gt;</span>
+            <span style="color: #000080">&lt;phase&gt;</span>package<span style="color: #000080">&lt;/phase&gt;</span>
+          <span style="color: #000080">&lt;/execution&gt;</span>
+        <span style="color: #000080">&lt;/executions&gt;</span>
+        <span style="color: #000080">&lt;configuration&gt;</span>
+          <span style="color: #000080">&lt;imageName&gt;</span>${project.name}<span style="color: #000080">&lt;/imageName&gt;</span>
+          <span style="color: #000080">&lt;mainClass&gt;</span>io.vertx.core.Launcher<span style="color: #000080">&lt;/mainClass&gt;</span>
+          <span style="color: #000080">&lt;buildArgs&gt;</span>-H:+PrintClassInitialization -H:+ReportExceptionStackTraces<span style="color: #000080">&lt;/buildArgs&gt;</span>
+        <span style="color: #000080">&lt;/configuration&gt;</span>
+      <span style="color: #000080">&lt;/plugin&gt;</span>
+    <span style="color: #000080">&lt;/plugins&gt;</span>
+  <span style="color: #000080">&lt;/build&gt;</span>
+<span style="color: #000080">&lt;/project&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Since the commands are loaded by reflection you need to declare the <code>RunCommand</code>, <code>VertxIsolatedDeployer</code>, <code>Long</code> and <code>Integer</code> classes to be accessed by reflection and their default constructors. Long and integer are used by the launcher to parse arguments if you&#8217;re wondering why.</p>
-</div>
-<div class="paragraph">
-<p>Then we can remove all <code>public static void main</code> methods from our verticles and list the verticles in the reflection file too.</p>
-</div>
-<div class="paragraph">
-<p>If you build the image, everything will work <strong>except</strong> the default main verticle will not start automatically. The reason is that the main verticle is defined in the <code>MANIFEST.MF</code> file. So this means we need to add resources to the image:</p>
+<p>Running <code>mvn clean package</code> will render a build failure. Currently and because vertx-core still depends on a <code>netty</code> release older than 4.1.53, we need to import the configuration added upstream manually. Which means we need to add a new file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="properties"><span style="background-color: #f8f8f8">Args</span> <span style="background-color: #f8f8f8">=</span>  <span style="color: #d14">--initialize-at-build-time=io.netty,io.vertx,com.fasterxml.jackson,javax </span><span style="color: #d14">\
-</span>        <span style="color: #d14">--initialize-at-run-time=io.vertx.core.net.impl.PartialPooledByteBufAllocator,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateEncoder,io.netty.handler.codec.http.websocketx.extensions.compression.DeflateDecoder,io.vertx.core.eventbus.impl.clustered.ClusteredEventBus,io.netty.util.internal.logging.Log4JLogger,io.netty.handler.codec.http.HttpObjectEncoder,io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,io.netty.handler.codec.http2.Http2CodecUtil,io.netty.handler.codec.http2.DefaultHttp2FrameWriter,io.netty.handler.ssl.ReferenceCountedOpenSslServerContext,io.netty.handler.ssl.JdkNpnApplicationProtocolNegotiator,io.netty.handler.ssl.ReferenceCountedOpenSslEngine,io.netty.handler.ssl.ConscryptAlpnSslEngine,io.netty.handler.ssl.JettyNpnSslEngine,io.netty.handler.ssl.ReferenceCountedOpenSslClientContext,io.vertx.core.net.impl.transport.EpollTransport,io.vertx.core.net.impl.transport.KQueueTransport,io.vertx.core.http.impl.VertxHttp2ClientUpgradeCodec,io.netty.handler.codec.http2.Http2ConnectionHandler </span><span style="color: #d14">\
-</span>       <span style="color: #d14">-H:+UseServiceLoaderFeature </span><span style="color: #d14">\
-</span>       <span style="color: #d14">-H:IncludeResources=(META-INF|static|webroot|template)/.* </span><span style="color: #d14">\
-</span>       <span style="color: #d14">-H:ReflectionConfigurationResources=${.}/reflection.json</span></code></pre>
+<pre>├── pom.xml
+└── src
+    └── main
+        └── resources
+            └── META-INF/native-image/com.example/myapp
+                └── native-image.properties</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>So the include resources configuration now tells the compiler to include all the <code>META-INF</code> files in the image.</p>
+<p>This file are the configuration needed to be passed to the compiler. Currently the file is quite big but again once vertx core uses the latest netty many of these entries can be removed and only list the vert.x specific ones:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight" style="background-color: #f8f8f8"><code data-lang="xml">Args = --enable-http \
+--enable-https \
+--allow-incomplete-classpath \
+--enable-all-security-services \
+-H:EnableURLProtocols=http,https \
+--report-unsupported-elements-at-runtime \
+-H:ReflectionConfigurationResources=${.}/reflect-config.json \
+-H:JNIConfigurationResources=${.}/jni-config.json \
+-H:ResourceConfigurationResources=${.}/resource-config.json \
+--initialize-at-build-time=org.slf4j.LoggerFactory,\
+org.slf4j.impl.StaticLoggerBinder$,\
+io.netty,\
+io.vertx,\
+com.fasterxml.jackson \
+--initialize-at-run-time=io.netty.channel.DefaultChannelId,\
+io.netty.buffer.PooledByteBufAllocator,\
+io.vertx.core.net.impl.PartialPooledByteBufAllocator,\
+io.netty.util.NetUtil,\
+io.netty.channel.socket.InternetProtocolFamily,\
+io.netty.resolver.HostsFileEntriesResolver,\
+io.netty.resolver.dns.DnsNameResolver,\
+io.netty.resolver.dns.DnsServerAddressStreamProviders,\
+io.netty.resolver.dns.PreferredAddressTypeComparator\$1,\
+io.netty.resolver.dns.DefaultDnsServerAddressStreamProvider,\
+io.vertx.core.impl.AddressResolver,\
+io.vertx.core.dns.AddressResolverOptions,\
+io.netty.handler.codec.http.websocketx.extensions.compression.DeflateEncoder,\
+io.netty.handler.codec.http.websocketx.extensions.compression.DeflateDecoder,\
+io.netty.handler.codec.http.HttpObjectEncoder,\
+io.netty.handler.codec.http.websocketx.WebSocket00FrameEncoder,\
+io.netty.handler.codec.http2.Http2CodecUtil,\
+io.netty.handler.codec.http2.Http2ConnectionHandler,\
+io.netty.handler.codec.http2.DefaultHttp2FrameWriter,\
+io.netty.util.internal.logging.Log4JLogger,\
+io.netty.handler.ssl.ReferenceCountedOpenSslServerContext,\
+io.netty.handler.ssl.JdkNpnApplicationProtocolNegotiator,\
+io.netty.handler.ssl.ReferenceCountedOpenSslEngine,\
+io.netty.handler.ssl.ConscryptAlpnSslEngine,\
+io.netty.handler.ssl.JettyNpnSslEngine,\
+io.netty.handler.ssl.JettyAlpnSslEngine$ClientEngine,\
+io.netty.handler.ssl.JettyAlpnSslEngine$ServerEngine,\
+io.netty.handler.ssl.ReferenceCountedOpenSslContext,\
+io.netty.handler.ssl.ReferenceCountedOpenSslClientContext,\
+io.netty.buffer.ByteBufUtil$HexUtil,\
+io.vertx.core.net.impl.transport.EpollTransport,\
+io.vertx.core.net.impl.transport.KQueueTransport,\
+io.vertx.core.http.impl.VertxHttp2ClientUpgradeCodec,\
+io.netty.resolver.dns.DnsServerAddressStreamProviders$DefaultProviderHolder,\
+io.vertx.core.eventbus.impl.clustered.ClusteredEventBus,\
+io.netty.channel.unix,\
+io.netty.channel.epoll,\
+io.netty.buffer.ByteBufUtil$HexUtil</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Running a compilation will be:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre>$ mvn package
 [INFO] Scanning for projects...
-...
-[hello_native:12244]      compile:  15,823.76 ms
-[hello_native:12244]        image:   2,144.95 ms
-[hello_native:12244]        write:     306.25 ms
-[hello_native:12244]      [total]:  48,724.03 ms
+[INFO]
+[INFO] -------------------------&lt; com.example:myapp &gt;--------------------------
+[INFO] Building hello_native 0.0.1-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- vertx-maven-plugin:1.0.22:initialize (vmp) @ myapp ---
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ myapp ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 4 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ myapp ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 3 source files to /home/paulo/Projects/vertx-howtos/graal-native-image-howto/target/classes
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ myapp ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/paulo/Projects/vertx-howtos/graal-native-image-howto/src/test/resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ myapp ---
+[INFO] No sources to compile
+[INFO]
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ myapp ---
+[INFO] No tests to run.
+[INFO]
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ myapp ---
+[INFO] Building jar: /home/paulo/Projects/vertx-howtos/graal-native-image-howto//target/myapp-0.0.1-SNAPSHOT.jar
+[INFO]
+[INFO] --- native-image-maven-plugin:20.3.0:native-image (default) @ myapp ---
+[INFO] ImageClasspath Entry: ...
+[INFO] Executing: ...
+[hello_native:59425]    classlist:   2,138.46 ms,  0.94 GB
+[hello_native:59425]        (cap):     541.55 ms,  0.94 GB
+[hello_native:59425]        setup:   1,947.31 ms,  0.94 GB
+[hello_native:59425]     (clinit):   1,033.70 ms,  3.20 GB
+[hello_native:59425]   (typeflow):  20,114.89 ms,  3.20 GB
+[hello_native:59425]    (objects):  19,071.97 ms,  3.20 GB
+[hello_native:59425]   (features):   1,535.82 ms,  3.20 GB
+[hello_native:59425]     analysis:  43,375.18 ms,  3.20 GB
+[hello_native:59425]     universe:   1,988.67 ms,  3.20 GB
+[hello_native:59425]      (parse):   6,534.22 ms,  4.99 GB
+[hello_native:59425]     (inline):  12,237.05 ms,  5.93 GB
+[hello_native:59425]    (compile):  47,588.24 ms,  5.90 GB
+[hello_native:59425]      compile:  69,333.28 ms,  5.90 GB
+[hello_native:59425]        image:   4,784.16 ms,  5.90 GB
+[hello_native:59425]        write:     819.88 ms,  5.90 GB
+[hello_native:59425]      [total]: 124,619.09 ms,  5.90 GB
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-
-$ ./target/hello_native
-Got HTTP response with status 200 with data Sometimes I tuck my knees into my chest and lean forward.  Thatâs just how I roll.
+[INFO] Total time:  02:07 min
+[INFO] Finished at: 2020-12-02T19:49:37+01:00
+[INFO] ------------------------------------------------------------------------</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Running the application will be as simple as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ ./target/hello_native run vertx.APIClientVerticle
+Got HTTP response with status 200 with data Two peanuts were walking down the street. One was a salted.
 ^C
 
-$ ./target/hello_native run vertx.HTTPVerticle
+$ ./target/hello_native run vertx.HTTPServer
+Dec 02, 2020 7:51:56 PM io.netty.channel.DefaultChannelId defaultProcessId
+WARNING: Failed to find the current process ID from ''; using a random value: 1891971538
+Dec 02, 2020 7:51:56 PM io.vertx.core.impl.launcher.commands.VertxIsolatedDeployer
+INFO: Succeeded in deploying verticle
 Server listening on http://localhost:8080/
 ^C
 
-$ ./target/hello_native run vertx.HTTPSVerticle
+$ ./target/hello_native run vertx.HTTPSServer
+Dec 02, 2020 7:56:25 PM io.netty.channel.DefaultChannelId defaultProcessId
+WARNING: Failed to find the current process ID from ''; using a random value: -1125265761
+Dec 02, 2020 7:56:25 PM io.vertx.core.impl.launcher.commands.VertxIsolatedDeployer
+INFO: Succeeded in deploying verticle
 Server listening on https://localhost:8443/
 ^C</pre>
 </div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+If you&#8217;re interested in knowing the RAM usage just execute: <code>ps x -o pid,rss,command|grep hello_native</code>
+      and you will observe something like: <code>59751 35484 ./target/hello_native run vertx.HTTPVerticle</code> About 36MB
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>You have now all the verticles in the same image. Remember that you can do now all the things you would with the launcher, for example scale the number of verticles for the HTTP server:</p>
@@ -739,6 +792,9 @@ Server listening on http://localhost:8080/
 </div>
 <div class="paragraph">
 <p>And this concludes the native image howto.</p>
+</div>
+<div class="paragraph">
+<p>The full source of this howto can be found <a href="https://github.com/vertx-howtos/graal-native-image-howto/tree/master/steps/step-2">here</a></p>
 </div>
 </div>
 </div>
@@ -875,7 +931,7 @@ Server listening on http://localhost:8080/
   <div class="row">
     <div class="col">
       <hr>
-      <p><small>Last published: 2020-01-09 19:33:07 +0000.</small></p>
+      <p><small>Last published: 2020-12-02 23:48:05 +0000.</small></p>
     </div>
   </div>
 </div>
