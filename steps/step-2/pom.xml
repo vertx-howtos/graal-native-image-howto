@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -10,6 +11,13 @@
   <name>hello_native</name>
 
   <properties>
+    <vertx.version>4.2.1</vertx.version>
+
+    <graal.plugin.version>0.9.8</graal.plugin.version>
+    <vertx.plugin.version>1.0.22</vertx.plugin.version>
+    <failsafe.plugin.version>2.22.2</failsafe.plugin.version>
+    <junit5.webclient.version>0.3.0</junit5.webclient.version>
+
     <vertx.verticle>vertx.APIClientVerticle</vertx.verticle>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,7 +25,6 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.testSource>1.8</maven.compiler.testSource>
     <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
-    <graal.version>20.3.0</graal.version>
   </properties>
 
   <dependencyManagement>
@@ -25,7 +32,7 @@
       <dependency>
         <groupId>io.vertx</groupId>
         <artifactId>vertx-stack-depchain</artifactId>
-        <version>4.0.0-SNAPSHOT</version>
+        <version>${vertx.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -41,6 +48,17 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web-client</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-junit5</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.reactiverse</groupId>
+      <artifactId>reactiverse-junit5-web-client</artifactId>
+      <version>${junit5.webclient.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -48,7 +66,7 @@
       <plugin>
         <groupId>io.reactiverse</groupId>
         <artifactId>vertx-maven-plugin</artifactId>
-        <version>1.0.22</version>
+        <version>${vertx.plugin.version}</version>
         <executions>
           <execution>
             <id>vmp</id>
@@ -62,13 +80,13 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.graalvm.nativeimage</groupId>
-        <artifactId>native-image-maven-plugin</artifactId>
-        <version>${graal.version}</version>
+        <groupId>org.graalvm.buildtools</groupId>
+        <artifactId>native-maven-plugin</artifactId>
+        <version>${graal.plugin.version}</version>
         <executions>
           <execution>
             <goals>
-              <goal>native-image</goal>
+              <goal>build</goal>
             </goals>
             <phase>package</phase>
           </execution>
@@ -78,6 +96,18 @@
           <mainClass>io.vertx.core.Launcher</mainClass>
           <buildArgs>-H:+PrintClassInitialization -H:+ReportExceptionStackTraces</buildArgs>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${failsafe.plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
