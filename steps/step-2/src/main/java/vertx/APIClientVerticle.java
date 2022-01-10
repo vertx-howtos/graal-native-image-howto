@@ -23,6 +23,9 @@ public class APIClientVerticle extends AbstractVerticle {
         } else {
           ar.cause().printStackTrace();
         }
+
+        // Submit our API request and then exit (to make testing easier)
+        getVertx().close();
     });
   }
 }
