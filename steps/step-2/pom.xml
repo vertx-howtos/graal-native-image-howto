@@ -13,11 +13,10 @@
     <vertx.verticle>vertx.APIClientVerticle</vertx.verticle>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.testSource>1.8</maven.compiler.testSource>
-    <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
-    <graal.version>20.3.0</graal.version>
+
+    <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+    <vertx.version>4.2.1</vertx.version>
+    <graal.version>21.2.0</graal.version>
   </properties>
 
   <dependencyManagement>
@@ -25,7 +24,7 @@
       <dependency>
         <groupId>io.vertx</groupId>
         <artifactId>vertx-stack-depchain</artifactId>
-        <version>4.0.0-SNAPSHOT</version>
+        <version>${vertx.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -45,6 +44,13 @@
 
   <build>
     <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <release>11</release>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>io.reactiverse</groupId>
         <artifactId>vertx-maven-plugin</artifactId>
