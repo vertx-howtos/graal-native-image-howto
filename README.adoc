@@ -14,7 +14,7 @@ This howto shows all the current required steps and workarounds to build a vert.
 == What you need
 
 - A text editor or IDE
-- GraalVM (20.3.0)
+- GraalVM (21.2.0)
 - Maven
 
 == What is a native-image and why is Vert.x a good match?
@@ -216,34 +216,34 @@ Running a compilation will be:
 ----
 $ mvn package
 [INFO] Scanning for projects...
-[INFO] 
+[INFO]
 [INFO] -------------------------< com.example:myapp >--------------------------
 [INFO] Building hello_native 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- vertx-maven-plugin:1.0.22:initialize (vmp) @ myapp ---
-[INFO] 
+[INFO]
 [INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ myapp ---
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
 [INFO] Copying 4 resources
-[INFO] 
+[INFO]
 [INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ myapp ---
 [INFO] Changes detected - recompiling the module!
 [INFO] Compiling 3 source files to /home/paulo/Projects/vertx-howtos/graal-native-image-howto/target/classes
-[INFO] 
+[INFO]
 [INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ myapp ---
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
 [INFO] skip non existing resourceDirectory /home/paulo/Projects/vertx-howtos/graal-native-image-howto/src/test/resources
-[INFO] 
+[INFO]
 [INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ myapp ---
 [INFO] No sources to compile
-[INFO] 
+[INFO]
 [INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ myapp ---
 [INFO] No tests to run.
-[INFO] 
+[INFO]
 [INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ myapp ---
 [INFO] Building jar: /home/paulo/Projects/vertx-howtos/graal-native-image-howto//target/myapp-0.0.1-SNAPSHOT.jar
-[INFO] 
+[INFO]
 [INFO] --- native-image-maven-plugin:20.3.0:native-image (default) @ myapp ---
 [INFO] ImageClasspath Entry: ...
 [INFO] Executing: ...
