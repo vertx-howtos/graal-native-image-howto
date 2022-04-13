@@ -11,10 +11,10 @@
   <name>hello_native</name>
 
   <properties>
-    <vertx.version>4.2.3</vertx.version>
+    <vertx.version>4.2.6</vertx.version>
 
-    <graal.plugin.version>0.9.8</graal.plugin.version>
-    <vertx.plugin.version>1.0.22</vertx.plugin.version>
+    <graal.plugin.version>0.9.11</graal.plugin.version>
+    <vertx.plugin.version>1.0.27</vertx.plugin.version>
     <failsafe.plugin.version>2.22.2</failsafe.plugin.version>
     <junit5.webclient.version>0.3.0</junit5.webclient.version>
 
