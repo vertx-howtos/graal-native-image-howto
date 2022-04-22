@@ -11,7 +11,7 @@
   <name>hello_native</name>
 
   <properties>
-    <vertx.version>4.2.6</vertx.version>
+    <vertx.version>4.2.7</vertx.version>
 
     <graal.plugin.version>0.9.11</graal.plugin.version>
     <vertx.plugin.version>1.0.27</vertx.plugin.version>
