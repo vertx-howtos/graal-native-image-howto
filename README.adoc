@@ -14,7 +14,7 @@ This howto shows all the current required steps and workarounds to build a vert.
 == What you need
 
 - A text editor or IDE
-- GraalVM (20.3.0)
+- GraalVM (22.3.0)
 - Maven
 
 == What is a native-image and why is Vert.x a good match?
@@ -221,6 +221,9 @@ $ mvn package
 [INFO] Building hello_native 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ myapp ---
+[INFO] Deleting /home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target
+[INFO] 
 [INFO] --- vertx-maven-plugin:1.0.22:initialize (vmp) @ myapp ---
 [INFO] 
 [INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ myapp ---
@@ -229,45 +232,166 @@ $ mvn package
 [INFO] 
 [INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ myapp ---
 [INFO] Changes detected - recompiling the module!
-[INFO] Compiling 3 source files to /home/paulo/Projects/vertx-howtos/graal-native-image-howto/target/classes
+[INFO] Compiling 3 source files to /home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target/classes
 [INFO] 
 [INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ myapp ---
 [INFO] Using 'UTF-8' encoding to copy filtered resources.
-[INFO] skip non existing resourceDirectory /home/paulo/Projects/vertx-howtos/graal-native-image-howto/src/test/resources
+[INFO] skip non existing resourceDirectory /home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/src/test/resources
 [INFO] 
 [INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ myapp ---
-[INFO] No sources to compile
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to /home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target/test-classes
 [INFO] 
 [INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ myapp ---
-[INFO] No tests to run.
 [INFO] 
 [INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ myapp ---
-[INFO] Building jar: /home/paulo/Projects/vertx-howtos/graal-native-image-howto//target/myapp-0.0.1-SNAPSHOT.jar
+[INFO] Building jar: /home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target/myapp-0.0.1-SNAPSHOT.jar
 [INFO] 
-[INFO] --- native-image-maven-plugin:20.3.0:native-image (default) @ myapp ---
-[INFO] ImageClasspath Entry: ...
-[INFO] Executing: ...
-[hello_native:59425]    classlist:   2,138.46 ms,  0.94 GB
-[hello_native:59425]        (cap):     541.55 ms,  0.94 GB
-[hello_native:59425]        setup:   1,947.31 ms,  0.94 GB
-[hello_native:59425]     (clinit):   1,033.70 ms,  3.20 GB
-[hello_native:59425]   (typeflow):  20,114.89 ms,  3.20 GB
-[hello_native:59425]    (objects):  19,071.97 ms,  3.20 GB
-[hello_native:59425]   (features):   1,535.82 ms,  3.20 GB
-[hello_native:59425]     analysis:  43,375.18 ms,  3.20 GB
-[hello_native:59425]     universe:   1,988.67 ms,  3.20 GB
-[hello_native:59425]      (parse):   6,534.22 ms,  4.99 GB
-[hello_native:59425]     (inline):  12,237.05 ms,  5.93 GB
-[hello_native:59425]    (compile):  47,588.24 ms,  5.90 GB
-[hello_native:59425]      compile:  69,333.28 ms,  5.90 GB
-[hello_native:59425]        image:   4,784.16 ms,  5.90 GB
-[hello_native:59425]        write:     819.88 ms,  5.90 GB
-[hello_native:59425]      [total]: 124,619.09 ms,  5.90 GB
+[INFO] --- native-maven-plugin:0.9.8:build (default) @ myapp ---
+[INFO] ImageClasspath Entry: io.vertx:vertx-core:jar:4.3.5:compile (file:///home/paulo/.m2/repository/io/vertx/vertx-core/4.3.5/vertx-core-4.3.5.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-common:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-common/4.1.85.Final/netty-common-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-buffer:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-buffer/4.1.85.Final/netty-buffer-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-transport:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-transport/4.1.85.Final/netty-transport-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-handler:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-handler/4.1.85.Final/netty-handler-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-transport-native-unix-common:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-transport-native-unix-common/4.1.85.Final/netty-transport-native-unix-common-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-codec:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-codec/4.1.85.Final/netty-codec-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-handler-proxy:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-handler-proxy/4.1.85.Final/netty-handler-proxy-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-codec-socks:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-codec-socks/4.1.85.Final/netty-codec-socks-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-codec-http:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-codec-http/4.1.85.Final/netty-codec-http-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-codec-http2:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-codec-http2/4.1.85.Final/netty-codec-http2-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-resolver:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-resolver/4.1.85.Final/netty-resolver-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-resolver-dns:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-resolver-dns/4.1.85.Final/netty-resolver-dns-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: io.netty:netty-codec-dns:jar:4.1.85.Final:compile (file:///home/paulo/.m2/repository/io/netty/netty-codec-dns/4.1.85.Final/netty-codec-dns-4.1.85.Final.jar)
+[INFO] ImageClasspath Entry: com.fasterxml.jackson.core:jackson-core:jar:2.14.0:compile (file:///home/paulo/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.14.0/jackson-core-2.14.0.jar)
+[INFO] ImageClasspath Entry: io.vertx:vertx-web-client:jar:4.3.5:compile (file:///home/paulo/.m2/repository/io/vertx/vertx-web-client/4.3.5/vertx-web-client-4.3.5.jar)
+[INFO] ImageClasspath Entry: io.vertx:vertx-uri-template:jar:4.3.5:compile (file:///home/paulo/.m2/repository/io/vertx/vertx-uri-template/4.3.5/vertx-uri-template-4.3.5.jar)
+[INFO] ImageClasspath Entry: io.vertx:vertx-web-common:jar:4.3.5:compile (file:///home/paulo/.m2/repository/io/vertx/vertx-web-common/4.3.5/vertx-web-common-4.3.5.jar)
+[INFO] ImageClasspath Entry: io.vertx:vertx-auth-common:jar:4.3.5:compile (file:///home/paulo/.m2/repository/io/vertx/vertx-auth-common/4.3.5/vertx-auth-common-4.3.5.jar)
+[INFO] ImageClasspath Entry: com.example:myapp:jar:0.0.1-SNAPSHOT (file:///home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target/myapp-0.0.1-SNAPSHOT.jar)
+[INFO] Executing: /home/paulo/.jdks/graalvm-ce-java11-22.3.0/bin/native-image -cp /home/paulo/.m2/repository/io/vertx/vertx-core/4.3.5/vertx-core-4.3.5.jar:/home/paulo/.m2/repository/io/netty/netty-common/4.1.85.Final/netty-common-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-buffer/4.1.85.Final/netty-buffer-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-transport/4.1.85.Final/netty-transport-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-handler/4.1.85.Final/netty-handler-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-transport-native-unix-common/4.1.85.Final/netty-transport-native-unix-common-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-codec/4.1.85.Final/netty-codec-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-handler-proxy/4.1.85.Final/netty-handler-proxy-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-codec-socks/4.1.85.Final/netty-codec-socks-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-codec-http/4.1.85.Final/netty-codec-http-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-codec-http2/4.1.85.Final/netty-codec-http2-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-resolver/4.1.85.Final/netty-resolver-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-resolver-dns/4.1.85.Final/netty-resolver-dns-4.1.85.Final.jar:/home/paulo/.m2/repository/io/netty/netty-codec-dns/4.1.85.Final/netty-codec-dns-4.1.85.Final.jar:/home/paulo/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.14.0/jackson-core-2.14.0.jar:/home/paulo/.m2/repository/io/vertx/vertx-web-client/4.3.5/vertx-web-client-4.3.5.jar:/home/paulo/.m2/repository/io/vertx/vertx-uri-template/4.3.5/vertx-uri-template-4.3.5.jar:/home/paulo/.m2/repository/io/vertx/vertx-web-common/4.3.5/vertx-web-common-4.3.5.jar:/home/paulo/.m2/repository/io/vertx/vertx-auth-common/4.3.5/vertx-auth-common-4.3.5.jar:/home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target/myapp-0.0.1-SNAPSHOT.jar -H:+PrintClassInitialization -H:+ReportExceptionStackTraces -H:Class=io.vertx.core.Launcher -H:Name=hello_native
+Warning: Using a deprecated option --allow-incomplete-classpath from 'META-INF/native-image/com.example/myapp/native-image.properties' in 'file:///home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target/myapp-0.0.1-SNAPSHOT.jar'. Allowing an incomplete classpath is now the default. Use --link-at-build-time to report linking errors at image build time for a class or package.
+========================================================================================================================
+GraalVM Native Image: Generating 'hello_native' (executable)...
+========================================================================================================================
+Warning: Could not register io.netty.handler.codec.compression.Lz4FrameDecoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: net/jpountz/lz4/LZ4Exception.
+Warning: Could not register io.netty.handler.codec.compression.Lz4FrameEncoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: net/jpountz/lz4/LZ4Exception.
+Warning: Could not register io.netty.handler.codec.marshalling.CompatibleMarshallingDecoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: org/jboss/marshalling/ByteInput.
+Warning: Could not register io.netty.handler.codec.marshalling.CompatibleMarshallingEncoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: org/jboss/marshalling/ByteOutput.
+Warning: Could not register io.netty.handler.codec.marshalling.MarshallingDecoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: org/jboss/marshalling/ByteInput.
+Warning: Could not register io.netty.handler.codec.marshalling.MarshallingEncoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: org/jboss/marshalling/ByteOutput.
+Warning: Could not register io.netty.handler.codec.protobuf.ProtobufDecoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: com/google/protobuf/ExtensionRegistryLite.
+Warning: Could not register io.netty.handler.codec.compression.Lz4FrameDecoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: net/jpountz/lz4/LZ4Exception.
+Warning: Could not register io.netty.handler.codec.compression.Lz4FrameEncoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: net/jpountz/lz4/LZ4Exception.
+Warning: Could not register io.netty.handler.codec.marshalling.CompatibleMarshallingDecoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: org/jboss/marshalling/ByteInput.
+Warning: Could not register io.netty.handler.codec.marshalling.CompatibleMarshallingEncoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: org/jboss/marshalling/ByteOutput.
+Warning: Could not register io.netty.handler.codec.marshalling.MarshallingDecoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: org/jboss/marshalling/ByteInput.
+Warning: Could not register io.netty.handler.codec.marshalling.MarshallingEncoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: org/jboss/marshalling/ByteOutput.
+Warning: Could not register io.netty.handler.codec.protobuf.ProtobufDecoder: queryAllPublicMethods for reflection. Reason: java.lang.NoClassDefFoundError: com/google/protobuf/ExtensionRegistryLite.
+[1/7] Initializing...                                                                                    (2.9s @ 0.24GB)
+ Version info: 'GraalVM 22.3.0 Java 11 CE'
+ Java version info: '11.0.17+8-jvmci-22.3-b08'
+ C compiler: gcc (linux, x86_64, 12.2.0)
+ Garbage collector: Serial GC
+# Printing class initialization configuration to: /home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target/reports/class_initialization_configuration_20221129_125610.csv
+[2/7] Performing analysis...  [*WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by io.netty.util.internal.ReflectionUtil (file:/home/paulo/.m2/repository/io/netty/netty-common/4.1.85.Final/netty-common-4.1.85.Final.jar) to constructor java.nio.DirectByteBuffer(long,int)
+WARNING: Please consider reporting this to the maintainers of io.netty.util.internal.ReflectionUtil
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+Nov 29, 2022 12:56:21 PM io.netty.handler.ssl.BouncyCastleAlpnSslUtils <clinit>
+SEVERE: Unable to initialize BouncyCastleAlpnSslUtils.
+java.lang.ClassNotFoundException: org.bouncycastle.jsse.BCSSLEngine
+	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:476)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:589)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:522)
+	at java.base/java.lang.Class.forName0(Native Method)
+	at java.base/java.lang.Class.forName(Class.java:315)
+	at io.netty.handler.ssl.BouncyCastleAlpnSslUtils.<clinit>(BouncyCastleAlpnSslUtils.java:63)
+	at java.base/jdk.internal.misc.Unsafe.ensureClassInitialized0(Native Method)
+	at java.base/jdk.internal.misc.Unsafe.ensureClassInitialized(Unsafe.java:1042)
+	at org.graalvm.nativeimage.builder/com.oracle.svm.hosted.classinitialization.ClassInitializationSupport.ensureClassInitialized(ClassInitializationSupport.java:172)
+	at org.graalvm.nativeimage.builder/com.oracle.svm.hosted.classinitialization.ProvenSafeClassInitializationSupport.computeInitKindAndMaybeInitializeClass(ProvenSafeClassInitializationSupport.java:344)
+	at org.graalvm.nativeimage.builder/com.oracle.svm.hosted.classinitialization.ProvenSafeClassInitializationSupport.computeInitKindAndMaybeInitializeClass(ProvenSafeClassInitializationSupport.java:75)
+	at org.graalvm.nativeimage.builder/com.oracle.svm.hosted.classinitialization.ClassInitializationSupport.shouldInitializeAtRuntime(ClassInitializationSupport.java:148)
+	at org.graalvm.nativeimage.builder/com.oracle.svm.hosted.SVMHost.isInitialized(SVMHost.java:297)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.meta.AnalysisType.isInitialized(AnalysisType.java:882)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.java.BytecodeParser.maybeEagerlyInitialize(BytecodeParser.java:4304)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.java.BytecodeParser.genInvokeStatic(BytecodeParser.java:1658)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.java.BytecodeParser.genInvokeStatic(BytecodeParser.java:1651)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.java.BytecodeParser.processBytecode(BytecodeParser.java:5288)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.java.BytecodeParser.iterateBytecodesForBlock(BytecodeParser.java:3385)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.java.BytecodeParser.handleBytecodeBlock(BytecodeParser.java:3345)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.java.BytecodeParser.processBlock(BytecodeParser.java:3190)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.java.BytecodeParser.build(BytecodeParser.java:1138)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.java.BytecodeParser.buildRootMethod(BytecodeParser.java:1030)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.java.GraphBuilderPhase$Instance.run(GraphBuilderPhase.java:97)
+	at org.graalvm.nativeimage.builder/com.oracle.svm.hosted.phases.SharedGraphBuilderPhase.run(SharedGraphBuilderPhase.java:84)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.phases.Phase.run(Phase.java:49)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.phases.BasePhase.apply(BasePhase.java:446)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.phases.Phase.apply(Phase.java:42)
+	at jdk.internal.vm.compiler/org.graalvm.compiler.phases.Phase.apply(Phase.java:38)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.AnalysisParsedGraph.parseBytecode(AnalysisParsedGraph.java:135)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.meta.AnalysisMethod.ensureGraphParsed(AnalysisMethod.java:685)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlowBuilder.parse(MethodTypeFlowBuilder.java:171)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlowBuilder.apply(MethodTypeFlowBuilder.java:349)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlow.createFlowsGraph(MethodTypeFlow.java:93)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlow.ensureFlowsGraphCreated(MethodTypeFlow.java:83)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.MethodTypeFlow.getOrCreateMethodFlowsGraph(MethodTypeFlow.java:65)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.typestate.DefaultVirtualInvokeTypeFlow.onObservedUpdate(DefaultVirtualInvokeTypeFlow.java:109)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.flow.TypeFlow.lambda$addObserver$0(TypeFlow.java:455)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.util.CompletionExecutor.executeCommand(CompletionExecutor.java:193)
+	at org.graalvm.nativeimage.pointsto/com.oracle.graal.pointsto.util.CompletionExecutor.lambda$executeService$0(CompletionExecutor.java:177)
+	at java.base/java.util.concurrent.ForkJoinTask$RunnableExecuteAction.exec(ForkJoinTask.java:1426)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:290)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1020)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1656)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1594)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:183)
+
+# Printing class initialization dependencies to: /home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target/reports/class_initialization_dependencies_20221129_125640.dot
+# Printing class initialization report to: /home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target/reports/class_initialization_report_20221129_125640.csv
+[2/7] Performing analysis...  [**********]                                                              (30.0s @ 4.34GB)
+  10,678 (89.69%) of 11,905 classes reachable
+  18,919 (64.59%) of 29,293 fields reachable
+  55,090 (60.41%) of 91,201 methods reachable
+     428 classes,     6 fields, and 1,602 methods registered for reflection
+      69 classes,    88 fields, and    56 methods registered for JNI access
+       5 native libraries: dl, pthread, rt, stdc++, z
+[3/7] Building universe...                                                                               (7.1s @ 2.74GB)
+[4/7] Parsing methods...      [**]                                                                       (4.1s @ 2.03GB)
+[5/7] Inlining methods...     [***]                                                                      (2.0s @ 3.71GB)
+[6/7] Compiling methods...    [*****]                                                                   (27.2s @ 3.15GB)
+[7/7] Creating image...                                                                                  (3.0s @ 4.61GB)
+  22.78MB (49.38%) for code area:    34,998 compilation units
+  21.08MB (45.71%) for image heap:  260,328 objects and 14 resources
+   2.26MB ( 4.91%) for other data
+  46.12MB in total
+------------------------------------------------------------------------------------------------------------------------
+Top 10 packages in code area:                               Top 10 object types in image heap:
+   2.44MB com.sun.tools.javac.comp                             5.00MB byte[] for code metadata
+   1.56MB sun.security.ssl                                     2.60MB java.lang.Class
+ 948.92KB java.util                                            2.51MB java.lang.String
+ 849.89KB com.sun.tools.javac.code                             2.21MB byte[] for general heap data
+ 685.28KB com.sun.tools.javac.jvm                              1.87MB byte[] for java.lang.String
+ 675.29KB com.sun.crypto.provider                           1001.06KB com.oracle.svm.core.hub.DynamicHubCompanion
+ 473.62KB sun.security.x509                                  534.83KB byte[] for reflection metadata
+ 470.83KB java.lang                                          504.76KB java.lang.String[]
+ 426.55KB com.sun.tools.javac.parser                         459.23KB java.util.HashMap$Node
+ 418.89KB io.netty.buffer                                    384.30KB c.o.svm.core.hub.DynamicHub$ReflectionMetadata
+  13.69MB for 312 more packages                                3.40MB for 2390 more object types
+------------------------------------------------------------------------------------------------------------------------
+                        3.4s (4.2% of total time) in 28 GCs | Peak RSS: 6.14GB | CPU load: 6.40
+------------------------------------------------------------------------------------------------------------------------
+Produced artifacts:
+ /home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target/hello_native (executable)
+ /home/paulo/Projects/vertx-howtos/graal-native-image-howto/steps/step-2/target/hello_native.build_artifacts.txt (txt)
+========================================================================================================================
+Finished generating 'hello_native' in 1m 20s.
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  02:07 min
-[INFO] Finished at: 2020-12-02T19:49:37+01:00
+[INFO] Total time:  01:21 min
+[INFO] Finished at: 2022-11-29T12:57:27+01:00
 [INFO] ------------------------------------------------------------------------
 ----
 
