@@ -1,0 +1,25 @@
+name: Publish the how-to
+
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install JDK 11
+        uses: AdoptOpenJDK/install-jdk@v1
+        with:
+          version: 11
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.6'
+      - uses: actions/checkout@v2
+        with:
+          ref: "gh-pages"
+          path: "_gh_pages"
+      - name: Run Jekyll and deploy
+        run: ./.run.jekyll.sh
