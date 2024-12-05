@@ -13,3 +13,5 @@ libsunec.so
 
 _site/
 .sass-cache/
+.ruby-version
+Gemfile.lock

@@ -1,9 +1,9 @@
 source "https://rubygems.org"
 
-gem "jekyll", "~> 3.8.5"
+gem "jekyll", "~> 3"
+gem "webrick"
 
 group :jekyll_plugins do
-  gem 'asciidoctor'
   gem 'jekyll-asciidoc'
 end
 
